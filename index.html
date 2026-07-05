@@ -6,969 +6,688 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="스트링일지">
-<meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#0b0d0c">
 <title>스트링 작업일지</title>
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
 <style>
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Crimson+Text:ital,wght@0,400;0,600;1,400&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
-*{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;background:#0b0d0c;color:#f1f4f2;font-family:'Segoe UI',-apple-system,BlinkMacSystemFont,sans-serif;line-height:1.6;}
+body{overflow:hidden;}
 
 :root{
-  /* base */
-  --bg:#0b0d0c;
-  --bg-elev:#101312;
-  --surface:#15100908; /* placeholder overwritten below */
-  --surface:#161a18;
-  --surface-2:#1d221f;
-  --surface-3:#262c28;
-  --line:rgba(255,255,255,0.07);
-  --line-2:rgba(255,255,255,0.13);
-  /* ink */
-  --ink:#f1f4f2;
-  --ink-2:rgba(241,244,242,0.74);
-  --ink-3:rgba(241,244,242,0.46);
-  --ink-4:rgba(241,244,242,0.26);
-  /* accent — themable (defaults = signal green; overridden at runtime by applyTheme) */
+  --text-primary:#f1f4f2;
+  --text-secondary:#b4b2a9;
+  --text-muted:#888780;
+  --bg-dark:#0b0d0c;
+  --bg-surface:#161a18;
+  --bg-surface-2:#1d221f;
+  --line:rgba(255,255,255,0.06);
+  --line-2:rgba(255,255,255,0.12);
   --accent:#4fe38b;
-  --accent-2:#2fbf6f;
   --accent-deep:#1c8f52;
-  --accent-ink:#05130b;            /* dark text on accent fills */
-  --accent-soft:rgba(79,227,139,0.14);
-  --accent-glow:rgba(79,227,139,0.28);
-  --accent-line:rgba(79,227,139,0.40);   /* drum selector borders */
-  --accent-b22:rgba(79,227,139,0.22);    /* thin accent borders */
-  --accent-bg:rgba(79,227,139,0.06);     /* page glow tint */
-  --accent-fill:rgba(79,227,139,0.16);   /* radar fill */
-  /* amber — instrument / meter */
-  --amber:#f6c453;
-  --amber-soft:rgba(246,196,83,0.14);
-  --amber-glow:rgba(246,196,83,0.30);
-  --danger:#ff6b6b;
-  --danger-soft:rgba(255,107,107,0.12);
-  /* radii */
-  --r-sm:10px;
-  --r-md:16px;
-  --r-lg:22px;
-  --r-xl:28px;
-  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
-  --serif:'Nanum Myeongjo','나눔명조',Georgia,serif;
+  --accent-soft:rgba(79,227,139,0.12);
+  --serif:'Crimson Text', serif;
+  --mono:'JetBrains Mono', monospace;
 }
-html,body{height:100%;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow-x:hidden;}
-body{background:
-  radial-gradient(1200px 600px at 50% -10%, var(--accent-bg), transparent 60%),
-  var(--bg);
-}
-.app{max-width:480px;margin:0 auto;min-height:100vh;overflow-x:hidden;position:relative;}
-.screen{display:none;flex-direction:column;min-height:100vh;animation:fadeScreen .28s ease;}
+
+.app{display:flex;flex-direction:column;height:100vh;background:var(--bg-dark);}
+.screen{display:none;flex-direction:column;flex:1;overflow-y:auto;overflow-x:hidden;}
 .screen.active{display:flex;}
-@keyframes fadeScreen{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-::selection{background:var(--accent-soft);}
 
-/* scrollbars */
-*::-webkit-scrollbar{width:0;height:0;}
-
-/* ═══════════ HOME ═══════════ */
-#screen-home{background:transparent;}
-.home-hero{
-  padding:calc(env(safe-area-inset-top) + 40px) 22px 22px;
-  position:relative;overflow:hidden;
+/* ════ HEADER ════ */
+.header{
+  background:var(--bg-surface);
+  border-bottom:1px solid var(--line-2);
+  padding:20px;
+  flex-shrink:0;
 }
-.hero-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:26px;}
-.hero-eyebrow{
-  font-family:var(--mono);
-  font-size:10.5px;font-weight:600;letter-spacing:2.5px;
-  color:var(--accent);text-transform:uppercase;
-  display:flex;align-items:center;gap:8px;
-}
-.hero-eyebrow::before{
-  content:'';width:16px;height:1.5px;background:var(--accent);display:inline-block;
-}
-.icon-btn{
-  width:40px;height:40px;border-radius:50%;
-  background:var(--surface);border:1px solid var(--line);
-  display:flex;align-items:center;justify-content:center;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:background .15s,transform .1s;color:var(--ink-2);
-}
-.icon-btn:active{transform:scale(.92);background:var(--surface-2);}
-.icon-btn svg{width:19px;height:19px;}
-.hero-title{
+.header-title{
   font-family:var(--serif);
-  font-size:34px;font-weight:800;color:var(--ink);
-  letter-spacing:1px;line-height:1.18;margin-bottom:6px;word-break:keep-all;
+  font-size:28px;
+  font-weight:600;
+  letter-spacing:-0.5px;
+  margin-bottom:4px;
 }
-.hero-title .accent{color:var(--accent);}
-.hero-sub{font-size:13px;color:var(--ink-3);font-weight:400;margin-bottom:22px;letter-spacing:.2px;}
-
-/* primary action row */
-.hero-actions{display:grid;grid-template-columns:1fr auto auto;gap:9px;}
-.btn-primary{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  background:var(--accent);color:var(--accent-ink);
-  border:none;border-radius:var(--r-lg);height:52px;padding:0 18px;
-  font-size:14.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;
-  box-shadow:0 8px 24px var(--accent-glow);
-  -webkit-tap-highlight-color:transparent;transition:transform .1s,filter .15s;
-}
-.btn-primary:active{transform:scale(.97);filter:brightness(.94);}
-.btn-primary svg{width:17px;height:17px;flex-shrink:0;}
-.btn-ghost{
-  display:flex;align-items:center;justify-content:center;
-  width:52px;height:52px;border-radius:var(--r-lg);
-  background:var(--surface);border:1px solid var(--line);color:var(--ink-2);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .15s,transform .1s;
-}
-.btn-ghost:active{transform:scale(.94);background:var(--surface-2);}
-.btn-ghost svg{width:20px;height:20px;}
-
-/* stat strip */
-.stat-strip{
-  display:flex;gap:10px;padding:6px 22px 4px;
-}
-.stat-chip{
-  flex:1;background:var(--surface);border:1px solid var(--line);
-  border-radius:var(--r-md);padding:13px 12px;text-align:left;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:background .14s,transform .1s,border-color .14s;
-}
-.stat-chip:active{transform:scale(.97);background:var(--surface-2);border-color:var(--line-2);}
-.stat-chip .n{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1;}
-.stat-chip .n.sm{font-size:15px;}
-.stat-chip .l{font-size:10.5px;color:var(--ink-4);font-weight:600;letter-spacing:.4px;margin-top:7px;text-transform:uppercase;}
-
-/* filter banner */
-.filter-banner{
-  display:flex;align-items:center;justify-content:space-between;
-  margin:12px 22px 2px;padding:10px 14px;background:var(--accent-soft);
-  border:1px solid var(--accent-b22);border-radius:var(--r-md);
-}
-.filter-banner span{font-size:12.5px;color:var(--accent);font-weight:700;}
-.filter-banner button{
-  background:none;border:none;color:var(--ink);font-size:12px;font-weight:600;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;text-decoration:underline;
+.header-sub{
+  font-size:12px;
+  color:var(--text-secondary);
+  text-transform:uppercase;
+  letter-spacing:1.2px;
 }
 
-/* list */
-.home-content{padding:14px 0 100px;}
-.section-lead{
-  display:flex;align-items:baseline;justify-content:space-between;
-  padding:12px 22px 10px;
+/* ════ CONTENT ════ */
+.content{
+  flex:1;
+  overflow-y:auto;
+  padding:24px 20px;
+  max-width:700px;
+  margin:0 auto;
+  width:100%;
 }
-.section-lead h2{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.3px;}
-.section-lead .hint{font-size:11px;color:var(--ink-4);font-family:var(--mono);}
 
-.user-group{margin-bottom:6px;}
-.user-head{display:flex;align-items:center;gap:11px;padding:14px 22px 7px;}
-.avatar{
-  width:34px;height:34px;border-radius:12px;
-  background:linear-gradient(135deg,var(--accent),var(--accent-deep));
-  display:flex;align-items:center;justify-content:center;
-  font-size:12px;font-weight:800;color:var(--accent-ink);flex-shrink:0;letter-spacing:-.5px;
+/* ════ STAT SECTION ════ */
+.stat-row{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:16px;
+  margin-bottom:32px;
 }
-.user-head .name{font-size:14.5px;font-weight:700;color:var(--ink);}
-.user-head .cnt{font-size:11.5px;color:var(--ink-4);margin-left:auto;font-family:var(--mono);}
+.stat-card{
+  background:var(--bg-surface);
+  border:1px solid var(--line);
+  padding:16px;
+  border-radius:0;
+}
+.stat-label{
+  font-size:11px;
+  color:var(--text-muted);
+  text-transform:uppercase;
+  letter-spacing:0.8px;
+  margin-bottom:8px;
+  display:block;
+}
+.stat-num{
+  font-family:var(--mono);
+  font-size:24px;
+  font-weight:700;
+  color:var(--accent);
+}
 
-.card{
-  display:flex;align-items:center;gap:14px;
-  margin:5px 16px;padding:13px 14px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:background .13s,transform .1s,border-color .13s;
+/* ════ ENTRY LIST ════ */
+.entry-list{
+  display:flex;
+  flex-direction:column;
+  gap:1px;
+  border:1px solid var(--line);
 }
-.card:active{transform:scale(.985);background:var(--surface-2);border-color:var(--line-2);}
-.card-thumb{
-  width:50px;height:50px;border-radius:13px;flex-shrink:0;
-  display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:19px;position:relative;overflow:hidden;
-}
-.card-body{flex:1;min-width:0;}
-.card-title{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.card-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
-.card-str{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
-.pill{
-  font-size:9px;font-weight:800;padding:2.5px 7px;border-radius:20px;letter-spacing:.4px;flex-shrink:0;
-  background:var(--accent-soft);color:var(--accent);text-transform:uppercase;
-}
-.pill.amber{background:var(--amber-soft);color:var(--amber);}
-.card-date{font-size:11px;color:var(--ink-4);flex-shrink:0;margin-left:auto;font-family:var(--mono);white-space:nowrap;}
-.card-sub{font-size:11px;color:var(--ink-4);margin-top:3px;}
-
-/* empty */
-.empty{
-  display:flex;flex-direction:column;align-items:center;justify-content:center;
-  padding:72px 30px;text-align:center;gap:12px;
-}
-.empty .t{font-size:17px;font-weight:800;color:var(--ink);}
-.empty .d{font-size:13.5px;color:var(--ink-3);line-height:1.7;}
-
-/* ═══════════ SUB HEADER ═══════════ */
-.sub-header{
-  background:rgba(11,13,12,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
-  padding:calc(env(safe-area-inset-top)) 12px 0;height:calc(56px + env(safe-area-inset-top));
-  display:flex;align-items:center;gap:8px;
+.entry-item{
+  background:var(--bg-surface);
+  padding:16px 20px;
+  cursor:pointer;
   border-bottom:1px solid var(--line);
-  position:sticky;top:0;z-index:100;
+  transition:background .15s;
+  text-decoration:none;
+  color:inherit;
+  display:block;
 }
-.sub-header h1{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.3px;flex:1;text-align:center;}
-.back-btn{
-  background:none;border:none;color:var(--accent);cursor:pointer;
-  height:40px;padding:0 6px;display:flex;align-items:center;gap:3px;
-  font-size:14.5px;font-weight:600;-webkit-tap-highlight-color:transparent;
-  white-space:nowrap;min-width:64px;
-}
-.back-btn svg{width:9px;height:15px;flex-shrink:0;}
-.back-btn:active{opacity:.5;}
-.header-action{
-  min-width:64px;display:flex;justify-content:flex-end;
-}
-.header-action button{
-  background:none;border:none;color:var(--accent);font-size:14.5px;font-weight:700;
-  cursor:pointer;padding:0 6px;height:40px;-webkit-tap-highlight-color:transparent;
-}
-.content{flex:1;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+.entry-item:hover{background:var(--bg-surface-2);}
+.entry-item:last-child{border-bottom:none;}
 
-/* ═══════════ FORM ═══════════ */
+.entry-date{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--text-muted);
+  display:block;
+  margin-bottom:6px;
+}
+.entry-racket{
+  font-size:13px;
+  color:var(--text-primary);
+  font-weight:500;
+  display:block;
+  margin-bottom:4px;
+}
+.entry-string{
+  font-size:12px;
+  color:var(--text-secondary);
+}
+
+/* ════ EMPTY STATE ════ */
+.empty-state{
+  text-align:center;
+  padding:60px 20px;
+  color:var(--text-secondary);
+}
+.empty-title{
+  font-family:var(--serif);
+  font-size:18px;
+  margin-bottom:8px;
+  color:var(--text-primary);
+}
+.empty-desc{
+  font-size:13px;
+  line-height:1.6;
+}
+
+/* ════ BUTTONS ════ */
+.btn{
+  background:var(--accent);
+  color:#05130b;
+  border:none;
+  padding:12px 24px;
+  border-radius:0;
+  cursor:pointer;
+  font-size:13px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  transition:background .15s;
+}
+.btn:hover{background:#3fce79;}
+.btn:active{transform:scale(.98);}
+.btn-secondary{
+  background:transparent;
+  border:1px solid var(--line-2);
+  color:var(--text-primary);
+}
+.btn-secondary:hover{background:var(--bg-surface);}
+
+.btn-row{
+  display:flex;
+  gap:12px;
+  margin-top:24px;
+}
+.btn-row .btn{flex:1;}
+
+/* ════ FORM ════ */
+.form-section{
+  margin-bottom:32px;
+}
+.form-section-title{
+  font-family:var(--serif);
+  font-size:16px;
+  font-weight:600;
+  margin-bottom:12px;
+  color:var(--text-primary);
+  padding-bottom:8px;
+  border-bottom:1px solid var(--line);
+}
+
+.form-group{
+  margin-bottom:16px;
+  display:flex;
+  flex-direction:column;
+}
 .form-label{
+  font-size:12px;
+  color:var(--text-secondary);
+  margin-bottom:6px;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  font-weight:500;
+}
+.form-input, .form-select, .form-textarea{
+  background:var(--bg-surface);
+  border:1px solid var(--line-2);
+  color:var(--text-primary);
+  padding:10px 12px;
+  font-size:13px;
+  font-family:inherit;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus{
+  outline:none;
+  border-color:var(--accent);
+  box-shadow:inset 0 0 0 2px rgba(79,227,139,0.1);
+}
+.form-textarea{
+  resize:vertical;
+  min-height:80px;
   font-family:var(--mono);
-  font-size:10.5px;font-weight:600;color:var(--accent);
-  letter-spacing:1.6px;text-transform:uppercase;margin:26px 0 9px 4px;
+  font-size:12px;
 }
-.form-label:first-child{margin-top:0;}
-.card-group{
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  overflow:hidden;margin-bottom:6px;
-}
-.row{
-  display:flex;align-items:center;padding:14px 16px;gap:12px;
-  border-bottom:1px solid var(--line);min-height:52px;overflow:hidden;
-}
-.row:last-child{border-bottom:none;}
-.row>label{font-size:14px;font-weight:500;color:var(--ink-2);min-width:64px;flex-shrink:0;}
-.row input[type=text],.row input[type=number],.row textarea{
-  flex:1;min-width:0;border:none;outline:none;
-  font-size:15px;font-family:'Pretendard',sans-serif;color:var(--ink);background:transparent;
-  text-align:right;-webkit-appearance:none;appearance:none;text-overflow:ellipsis;
-}
-.row input::placeholder{color:var(--ink-4);}
 
-/* picker trigger */
-.picker-trigger{
-  flex:1;display:flex;align-items:center;justify-content:flex-end;gap:8px;
-  background:none;border:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  padding:0;min-width:0;
+/* ════ DETAIL VIEW ════ */
+.detail-row{
+  display:flex;
+  justify-content:space-between;
+  padding:12px 0;
+  border-bottom:1px solid var(--line);
+  font-size:13px;
 }
-.picker-trigger .val{
-  font-size:15px;font-weight:500;color:var(--ink);text-align:right;
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;
-}
-.picker-trigger .val.empty{color:var(--ink-4);}
-.picker-trigger .chev{color:var(--ink-4);flex-shrink:0;display:flex;}
-.picker-trigger .chev svg{width:13px;height:13px;}
-.picker-trigger:active .val{opacity:.6;}
-
-.suffix-wrap{display:flex;align-items:center;gap:4px;flex:1;min-width:0;justify-content:flex-end;}
-.suffix-wrap input{flex:1;min-width:0;width:0;text-align:right;}
-.suffix{font-size:13px;color:var(--ink-4);flex-shrink:0;}
-
-/* toggle */
-.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:15px 16px;gap:12px;}
-.toggle-row .tl{font-size:15px;font-weight:600;color:var(--ink);}
-.toggle-row .ts{font-size:12px;color:var(--ink-3);margin-top:2px;}
-.toggle{position:relative;width:50px;height:30px;flex-shrink:0;}
-.toggle input{opacity:0;width:0;height:0;}
-.toggle .sl{position:absolute;inset:0;background:var(--surface-3);border-radius:16px;cursor:pointer;transition:background .22s;}
-.toggle .sl:before{content:'';position:absolute;width:26px;height:26px;left:2px;top:2px;background:#fff;border-radius:50%;transition:transform .22s;box-shadow:0 2px 6px rgba(0,0,0,.4);}
-.toggle input:checked+.sl{background:var(--accent);}
-.toggle input:checked+.sl:before{transform:translateX(20px);}
-
-/* string block */
-.block-label{
-  font-family:var(--mono);
-  font-size:10px;font-weight:700;color:var(--accent);
-  letter-spacing:1.4px;text-transform:uppercase;
-  margin:18px 0 8px 4px;display:flex;align-items:center;gap:10px;
-}
-.block-label::after{content:'';flex:1;height:1px;background:var(--line);}
-
-/* inline custom input */
-.inline-add{padding:0 16px 14px;}
-.inline-add input{
-  width:100%;background:var(--bg-elev);border:1px solid var(--line-2);border-radius:var(--r-sm);
-  padding:12px 14px;color:var(--ink);font-size:14px;outline:none;font-family:'Pretendard',sans-serif;
-}
-.inline-add input::placeholder{color:var(--ink-4);}
-
-/* measurement inline card */
-.meas-card{
-  background:linear-gradient(150deg, rgba(246,196,83,0.07), var(--surface));
-  border:1px solid rgba(246,196,83,0.22);border-radius:var(--r-md);
-  padding:16px;margin-bottom:6px;
-}
-.meas-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
-.meas-head .t{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px;}
-.meas-head .t svg{width:16px;height:16px;color:var(--amber);}
-.meas-vals{display:flex;gap:10px;}
-.meas-v{flex:1;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px;text-align:center;}
-.meas-v .num{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--amber);letter-spacing:-.5px;}
-.meas-v .num.g{color:var(--accent);}
-.meas-v .cap{font-size:9.5px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:4px;text-transform:uppercase;}
-.meas-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  background:var(--amber-soft);color:var(--amber);border:1px solid rgba(246,196,83,0.3);
-  border-radius:var(--r-sm);padding:13px;font-size:14px;font-weight:700;
-  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .14s,transform .1s;
-  font-family:'Pretendard',sans-serif;
-}
-.meas-btn:active{transform:scale(.98);background:rgba(246,196,83,0.2);}
-.meas-btn svg{width:17px;height:17px;}
-.meas-clear{background:none;border:none;color:var(--ink-4);font-size:12px;cursor:pointer;text-decoration:underline;font-family:'Pretendard',sans-serif;}
-
-/* save */
-.btn-save{
-  display:block;width:100%;background:var(--accent);color:var(--accent-ink);border:none;
-  border-radius:var(--r-lg);padding:17px;font-size:15px;font-weight:800;
-  cursor:pointer;margin-top:26px;letter-spacing:-.2px;
-  box-shadow:0 8px 24px var(--accent-glow);
-  -webkit-tap-highlight-color:transparent;transition:transform .1s,filter .15s;
-}
-.btn-save:active{transform:scale(.98);filter:brightness(.94);}
-
-/* ═══════════ DETAIL ═══════════ */
+.detail-row:last-child{border-bottom:none;}
 .detail-label{
-  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent);
-  letter-spacing:1.6px;text-transform:uppercase;margin:26px 0 9px 4px;
+  color:var(--text-secondary);
+  font-weight:500;
+  text-transform:uppercase;
+  font-size:11px;
+  letter-spacing:0.5px;
 }
-.detail-label:first-child{margin-top:0;}
-.detail-group{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:6px;}
-.d-row{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;gap:12px;border-bottom:1px solid var(--line);min-height:48px;}
-.d-row:last-child{border-bottom:none;}
-.dk{font-size:14px;color:var(--ink-3);flex-shrink:0;}
-.dv{font-size:14px;font-weight:600;color:var(--ink);text-align:right;}
-.dv.mono{font-family:var(--mono);}
-.badge{background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px;}
-.divider-lbl{display:flex;align-items:center;gap:8px;padding:9px 16px;}
-.divider-lbl span{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);white-space:nowrap;letter-spacing:1px;}
-.divider-lbl::before,.divider-lbl::after{content:'';flex:1;height:1px;background:var(--line);}
-
-.meas-detail{
-  background:linear-gradient(150deg, rgba(246,196,83,0.08), var(--surface));
-  border:1px solid rgba(246,196,83,0.24);border-radius:var(--r-md);padding:18px;margin-bottom:6px;
+.detail-value{
+  color:var(--text-primary);
+  text-align:right;
 }
-.meas-detail .mvals{display:flex;gap:10px;margin-bottom:12px;}
-.meas-detail .mv{flex:1;text-align:center;}
-.meas-detail .mv .num{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--amber);}
-.meas-detail .mv .num.g{color:var(--accent);}
-.meas-detail .mv .cap{font-size:10px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:5px;text-transform:uppercase;}
-.meas-detail .note{font-size:11.5px;color:var(--ink-3);line-height:1.6;padding-top:12px;border-top:1px solid var(--line);}
-.meas-detail .note b{color:var(--amber);font-weight:700;}
 
-.action-btn{
-  display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  background:var(--surface);color:var(--accent);border:1px solid var(--line);
-  border-radius:var(--r-md);padding:16px;font-size:14.5px;font-weight:700;
-  cursor:pointer;margin-bottom:9px;-webkit-tap-highlight-color:transparent;
-  transition:background .13s;font-family:'Pretendard',sans-serif;
+/* ════ TABS ════ */
+.tab-bar{
+  display:flex;
+  border-bottom:1px solid var(--line-2);
+  background:var(--bg-surface);
+  gap:0;
 }
-.action-btn:active{background:var(--surface-2);}
-.action-btn svg{width:17px;height:17px;}
-.delete-btn{
-  width:100%;background:transparent;color:var(--danger);
-  border:1px solid rgba(255,107,107,0.3);border-radius:var(--r-md);
-  padding:15px;font-size:14px;font-weight:600;cursor:pointer;margin-top:6px;margin-bottom:20px;
-  -webkit-tap-highlight-color:transparent;transition:background .12s;font-family:'Pretendard',sans-serif;
+.tab-btn{
+  flex:1;
+  background:transparent;
+  border:none;
+  color:var(--text-secondary);
+  padding:12px 16px;
+  cursor:pointer;
+  font-size:12px;
+  font-weight:500;
+  text-transform:uppercase;
+  letter-spacing:0.5px;
+  border-bottom:2px solid transparent;
+  transition:color .15s;
 }
-.delete-btn:active{background:var(--danger-soft);}
+.tab-btn.active{
+  color:var(--accent);
+  border-bottom-color:var(--accent);
+}
+.tab-btn:hover{color:var(--text-primary);}
 
-/* ═══════════ FEEDBACK / RADAR ═══════════ */
-.radar-wrap{display:flex;justify-content:center;padding:8px 0 4px;}
-.sliders{border-radius:var(--r-md);overflow:hidden;border:1px solid var(--line);}
-.slider-row{display:flex;align-items:center;gap:12px;background:var(--surface);padding:14px 16px;border-bottom:1px solid var(--line);}
-.slider-row:last-child{border-bottom:none;}
-.sl-label{font-size:14px;font-weight:500;color:var(--ink-2);width:56px;flex-shrink:0;}
-.sl-track{flex:1;}
-input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--surface-3);border-radius:2px;outline:none;cursor:pointer;}
-input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 2px 8px var(--accent-glow);}
-input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:none;}
-.sl-val{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent);width:24px;text-align:right;flex-shrink:0;}
-.fb-textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:15px 16px;margin-bottom:4px;}
-.fb-textarea textarea{width:100%;border:none;outline:none;font-size:15px;font-family:'Pretendard',sans-serif;color:var(--ink);background:transparent;resize:vertical;min-height:96px;line-height:1.6;}
-.fb-textarea textarea::placeholder{color:var(--ink-4);}
-.fb-saved{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;margin-bottom:6px;}
-.fb-text-prev{font-size:14px;color:var(--ink-2);line-height:1.6;margin-top:10px;padding-top:10px;border-top:1px solid var(--line);}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
 
-/* ═══════════ TOAST ═══════════ */
+/* ════ MODAL ════ */
+.modal-overlay{
+  position:fixed;
+  top:0;left:0;right:0;bottom:0;
+  background:rgba(0,0,0,0.7);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:1000;
+}
+.modal-overlay.show{display:flex;}
+.modal{
+  background:var(--bg-surface);
+  border:1px solid var(--line-2);
+  max-width:500px;
+  width:90%;
+  max-height:80vh;
+  overflow-y:auto;
+}
+.modal-header{
+  padding:20px;
+  border-bottom:1px solid var(--line);
+}
+.modal-title{
+  font-family:var(--serif);
+  font-size:18px;
+  font-weight:600;
+}
+.modal-body{
+  padding:20px;
+}
+.modal-footer{
+  padding:20px;
+  border-top:1px solid var(--line);
+  display:flex;
+  gap:12px;
+}
+.modal-footer .btn{flex:1;}
+
+/* ════ RATING ════ */
+.rating-group{
+  display:flex;
+  gap:12px;
+  margin:12px 0;
+}
+.rating-btn{
+  background:var(--bg-surface);
+  border:1px solid var(--line-2);
+  color:var(--text-secondary);
+  width:40px;
+  height:40px;
+  border-radius:0;
+  cursor:pointer;
+  font-weight:600;
+  transition:all .15s;
+}
+.rating-btn:hover{
+  border-color:var(--accent);
+  color:var(--accent);
+}
+.rating-btn.active{
+  background:var(--accent);
+  color:#05130b;
+  border-color:var(--accent);
+}
+
+/* ════ AXIS RATING ════ */
+.axis-item{
+  margin-bottom:16px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.axis-label{
+  font-size:12px;
+  color:var(--text-secondary);
+  min-width:80px;
+  text-transform:uppercase;
+  letter-spacing:0.4px;
+  font-weight:500;
+}
+.axis-slider{
+  flex:1;
+  height:2px;
+  background:var(--line-2);
+  border:none;
+  cursor:pointer;
+  -webkit-appearance:none;
+  appearance:none;
+}
+.axis-slider::-webkit-slider-thumb{
+  -webkit-appearance:none;
+  appearance:none;
+  width:16px;
+  height:16px;
+  background:var(--accent);
+  cursor:pointer;
+  border:1px solid var(--accent);
+}
+.axis-slider::-moz-range-thumb{
+  width:16px;
+  height:16px;
+  background:var(--accent);
+  cursor:pointer;
+  border:1px solid var(--accent);
+  border-radius:50%;
+}
+.axis-value{
+  font-family:var(--mono);
+  font-size:11px;
+  color:var(--accent);
+  min-width:30px;
+  text-align:right;
+}
+
+/* ════ TOAST ════ */
 .toast{
-  position:fixed;bottom:calc(34px + env(safe-area-inset-bottom));left:50%;
-  transform:translateX(-50%) translateY(90px);
-  background:var(--accent);color:var(--accent-ink);padding:13px 24px;border-radius:24px;
-  font-size:13px;font-weight:800;opacity:0;transition:all .3s cubic-bezier(.34,1.56,.64,1);
-  z-index:9999;white-space:nowrap;pointer-events:none;box-shadow:0 8px 28px var(--accent-glow);max-width:88vw;text-align:center;
+  position:fixed;
+  bottom:20px;
+  left:20px;
+  right:20px;
+  background:var(--bg-surface);
+  border:1px solid var(--line-2);
+  padding:12px 16px;
+  color:var(--text-primary);
+  font-size:12px;
+  opacity:0;
+  transition:opacity .3s;
+  z-index:900;
 }
-.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
-.toast.amber{background:var(--amber);box-shadow:0 8px 28px var(--amber-glow);}
-.toast.err{background:var(--danger);color:#fff;box-shadow:0 8px 28px rgba(255,107,107,.35);}
+.toast.show{opacity:1;}
 
-/* ═══════════ SHEET (bottom) ═══════════ */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:300;opacity:0;transition:opacity .22s;}
-.overlay.show{display:block;opacity:1;}
-.sheet{
-  position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);
-  width:100%;max-width:480px;background:var(--bg-elev);
-  border-radius:var(--r-xl) var(--r-xl) 0 0;z-index:301;
-  transition:transform .34s cubic-bezier(.32,.72,0,1);
-  box-shadow:0 -8px 40px rgba(0,0,0,.6);border-top:1px solid var(--line-2);
-  padding-bottom:env(safe-area-inset-bottom);
+/* ════ RESPONSIVE ════ */
+@media (max-width:600px){
+  .header{padding:16px;}
+  .header-title{font-size:24px;}
+  .content{padding:16px;}
+  .stat-row{grid-template-columns:1fr;}
 }
-.sheet.show{transform:translateX(-50%) translateY(0);}
-.sheet-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--line);}
-.sheet-title{font-size:15px;font-weight:700;color:var(--ink);}
-.sheet-cancel{background:none;border:none;font-size:15px;color:var(--ink-3);cursor:pointer;padding:2px 4px;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
-.sheet-confirm{background:none;border:none;font-size:15px;font-weight:800;color:var(--accent);cursor:pointer;padding:2px 4px;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
-
-/* drum */
-.drum-body{display:flex;height:216px;position:relative;overflow:hidden;padding:0 16px;background:var(--bg-elev);}
-.drum-body.single{padding:0;}
-.drum-body::before,.drum-body::after{content:'';position:absolute;left:0;right:0;height:76px;z-index:2;pointer-events:none;}
-.drum-body::before{top:0;background:linear-gradient(to bottom,var(--bg-elev) 18%,transparent);}
-.drum-body::after{bottom:0;background:linear-gradient(to top,var(--bg-elev) 18%,transparent);}
-.drum-selector{position:absolute;top:50%;left:14px;right:14px;height:44px;margin-top:-22px;background:var(--accent-soft);border-top:1px solid var(--accent-line);border-bottom:1px solid var(--accent-line);border-radius:10px;pointer-events:none;z-index:1;}
-.drum-col{flex:1;overflow-y:scroll;-webkit-overflow-scrolling:touch;scroll-snap-type:y mandatory;scrollbar-width:none;}
-.drum-col::-webkit-scrollbar{display:none;}
-.drum-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:400;color:var(--ink-4);scroll-snap-align:center;user-select:none;cursor:pointer;transition:color .1s,font-weight .1s;padding:0 10px;text-align:center;}
-.drum-item.active{color:var(--ink);font-weight:700;}
-.drum-item.add{color:var(--accent);font-weight:600;}
-.drum-pad{height:86px;flex-shrink:0;}
-
-/* generic list sheet (settings custom lists / user filter) */
-.sheet-body{padding:20px;max-height:70vh;overflow-y:auto;}
-.sheet-desc{font-size:13.5px;color:var(--ink-3);line-height:1.6;margin-bottom:16px;}
-.list-item{
-  display:flex;align-items:center;gap:12px;padding:13px 14px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s;margin-bottom:8px;
-}
-.list-item:active{background:var(--surface-2);}
-.list-item .li-avatar{width:34px;height:34px;border-radius:11px;background:linear-gradient(135deg,var(--accent),var(--accent-deep));display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--accent-ink);flex-shrink:0;}
-.list-item .li-name{font-size:14.5px;font-weight:700;color:var(--ink);flex:1;}
-.list-item .li-cnt{font-size:12px;color:var(--ink-4);font-family:var(--mono);}
-.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px;}
-.chip{display:inline-flex;align-items:center;gap:7px;background:var(--surface-2);border:1px solid var(--line-2);border-radius:20px;padding:8px 12px;font-size:13px;color:var(--ink);}
-.chip button{background:none;border:none;color:var(--ink-4);cursor:pointer;font-size:15px;line-height:1;padding:0;display:flex;-webkit-tap-highlight-color:transparent;}
-.chip button:active{color:var(--danger);}
-.add-field{display:flex;gap:8px;margin-bottom:8px;}
-.add-field input{flex:1;background:var(--bg-elev);border:1px solid var(--line-2);border-radius:var(--r-sm);padding:12px 14px;color:var(--ink);font-size:14px;outline:none;font-family:'Pretendard',sans-serif;}
-.add-field input::placeholder{color:var(--ink-4);}
-.add-field button{background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--r-sm);padding:0 18px;font-size:14px;font-weight:800;cursor:pointer;-webkit-tap-highlight-color:transparent;font-family:'Pretendard',sans-serif;}
-.sheet-btns{display:flex;gap:10px;margin-top:8px;}
-.sheet-btn-cancel{flex:1;padding:15px;border:1px solid var(--line-2);border-radius:var(--r-md);background:none;color:var(--ink-3);font-size:15px;font-weight:600;cursor:pointer;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
-.sheet-btn-confirm{flex:2;padding:15px;border:none;border-radius:var(--r-md);background:var(--accent);color:var(--accent-ink);font-size:15px;font-weight:800;cursor:pointer;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
-.sheet-btn-confirm.danger{background:var(--danger);color:#fff;}
-
-/* ═══════════ SETTINGS ═══════════ */
-.set-group{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);overflow:hidden;margin-bottom:6px;}
-.set-row{display:flex;align-items:center;gap:14px;padding:16px;border-bottom:1px solid var(--line);cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s;min-height:56px;}
-.set-row:last-child{border-bottom:none;}
-.set-row:active{background:var(--surface-2);}
-.set-row.no-tap{cursor:default;}
-.set-row.no-tap:active{background:none;}
-.set-icon{width:34px;height:34px;border-radius:11px;background:var(--surface-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);}
-.set-icon svg{width:18px;height:18px;}
-.set-txt{flex:1;min-width:0;}
-.set-txt .st{font-size:14.5px;font-weight:600;color:var(--ink);}
-.set-txt .ss{font-size:12px;color:var(--ink-3);margin-top:2px;}
-.set-val{font-size:13px;color:var(--ink-4);font-family:var(--mono);}
-.set-chev{color:var(--ink-4);flex-shrink:0;display:flex;}
-.set-chev svg{width:14px;height:14px;}
-.lang-seg{display:flex;background:var(--bg-elev);border:1px solid var(--line-2);border-radius:12px;padding:3px;flex-shrink:0;}
-.lang-seg button{border:none;background:none;color:var(--ink-3);font-size:13px;font-weight:700;padding:7px 14px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;font-family:'Pretendard',sans-serif;}
-.lang-seg button.on{background:var(--accent);color:var(--accent-ink);}
-
-/* ═══════════ METER ═══════════ */
-#screen-meter{background:var(--bg);}
-.meter-stage{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  padding:8px 20px 30px;
-}
-.meter-scope{
-  width:100%;height:150px;background:var(--bg-elev);border:1px solid var(--line);
-  border-radius:var(--r-md);position:relative;overflow:hidden;margin-bottom:20px;
-}
-.meter-scope canvas{width:100%;height:100%;display:block;}
-.scope-grid{position:absolute;inset:0;pointer-events:none;
-  background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
-  background-size:100% 30px, 40px 100%;opacity:.5;}
-.meter-readout{text-align:center;margin-bottom:8px;}
-.meter-hz{font-family:var(--mono);font-size:64px;font-weight:800;color:var(--amber);letter-spacing:-2px;line-height:1;transition:color .2s;}
-.meter-hz.locked{color:var(--accent);}
-.meter-hz-unit{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--ink-4);margin-left:6px;}
-.meter-status{font-size:13px;color:var(--ink-3);margin-top:10px;min-height:20px;font-weight:600;}
-.meter-status.locked{color:var(--accent);}
-.stability{width:170px;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin:14px auto 0;}
-.stability .bar{height:100%;width:0;background:var(--amber);border-radius:3px;transition:width .12s,background .2s;}
-.stability .bar.full{background:var(--accent);}
-.meter-dt-row{display:flex;gap:12px;width:100%;margin:24px 0 8px;}
-.meter-dt{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;text-align:center;}
-.meter-dt .num{font-family:var(--mono);font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-1px;}
-.meter-dt .num.acc{color:var(--accent);}
-.meter-dt .cap{font-size:10px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:6px;text-transform:uppercase;}
-.meter-headsize{
-  display:flex;align-items:center;justify-content:space-between;width:100%;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  padding:14px 16px;margin-bottom:10px;cursor:pointer;-webkit-tap-highlight-color:transparent;
-}
-.meter-headsize:active{background:var(--surface-2);}
-.meter-headsize .l{font-size:14px;color:var(--ink-2);font-weight:500;}
-.meter-headsize .v{font-family:var(--mono);font-size:14px;color:var(--ink);font-weight:600;display:flex;align-items:center;gap:6px;}
-.meter-actions{display:flex;gap:10px;width:100%;margin-top:8px;}
-.meter-mic-btn{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;
-  background:var(--amber);color:#1a1200;border:none;border-radius:var(--r-lg);
-  padding:17px 12px;font-size:14.5px;font-weight:800;cursor:pointer;
-  box-shadow:0 8px 24px var(--amber-glow);-webkit-tap-highlight-color:transparent;
-  transition:transform .1s,filter .15s;font-family:'Pretendard',sans-serif;
-}
-.meter-mic-btn:active{transform:scale(.98);filter:brightness(.95);}
-.meter-mic-btn.listening{background:var(--danger);color:#fff;box-shadow:0 8px 24px rgba(255,107,107,.35);animation:pulseMic 1.4s ease infinite;}
-@keyframes pulseMic{0%,100%{box-shadow:0 8px 24px rgba(255,107,107,.3);}50%{box-shadow:0 8px 34px rgba(255,107,107,.55);}}
-.meter-mic-btn svg{width:19px;height:19px;}
-.meter-use-btn{
-  flex:1;display:flex;align-items:center;justify-content:center;gap:7px;white-space:nowrap;
-  background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--r-lg);
-  padding:17px 12px;font-size:14.5px;font-weight:800;cursor:pointer;
-  box-shadow:0 8px 24px var(--accent-glow);-webkit-tap-highlight-color:transparent;
-  transition:transform .1s,filter .15s;font-family:'Pretendard',sans-serif;
-}
-.meter-use-btn:active{transform:scale(.98);filter:brightness(.94);}
-.meter-use-btn:disabled{opacity:.4;pointer-events:none;box-shadow:none;}
-.meter-guide{
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  padding:16px;margin-top:18px;
-}
-.meter-guide .gt{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
-.meter-guide .gt svg{width:15px;height:15px;color:var(--amber);}
-.meter-guide ol{margin:0;padding-left:20px;}
-.meter-guide li{font-size:12.5px;color:var(--ink-3);line-height:1.75;}
-.meter-guide .warn{font-size:11.5px;color:var(--ink-4);line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
-.meter-guide .warn b{color:var(--amber);}
-
-/* theme picker */
-.set-sw{width:20px;height:20px;border-radius:7px;flex-shrink:0;box-shadow:0 0 0 1px var(--line-2) inset;}
-.theme-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.theme-opt{
-  display:flex;align-items:center;gap:11px;padding:13px 13px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
-  cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .12s,border-color .12s;
-}
-.theme-opt:active{background:var(--surface-2);}
-.theme-opt.sel{border-color:var(--tsw);}
-.theme-dot{width:26px;height:26px;border-radius:9px;flex-shrink:0;position:relative;}
-.theme-dot .rng{position:absolute;right:-2px;bottom:-2px;width:11px;height:11px;border-radius:4px;border:2px solid var(--bg-elev);}
-.theme-name{flex:1;min-width:0;font-size:13.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.theme-check{width:18px;height:18px;flex-shrink:0;color:var(--tsw);opacity:0;transition:opacity .12s;}
-.theme-opt.sel .theme-check{opacity:1;}
-.theme-check svg{width:18px;height:18px;}
-
-/* misc */
-.spacer{height:40px;}
-[hidden]{display:none !important;}
 </style>
 </head>
 <body>
+
 <div class="app">
-
-<!-- ══════════ HOME ══════════ -->
-<div class="screen active" id="screen-home">
-  <div class="home-hero">
-    <div class="hero-topbar">
-      <div class="hero-eyebrow" data-i18n="hero.eyebrow">STRINGER'S LOG</div>
-      <button class="icon-btn" onclick="openSettings()" aria-label="settings">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-      </button>
+  <!-- HOME SCREEN -->
+  <div class="screen active" id="screen-home">
+    <div class="header">
+      <div class="header-sub">스트링 작업일지</div>
+      <div class="header-title">기록<span style="color:var(--accent);">.</span></div>
     </div>
-    <h1 class="hero-title" data-i18n-html="hero.title">스트링 <span class="accent">작업일지</span></h1>
-    <div class="hero-sub" data-i18n="hero.sub">라켓 스트링 기록 · 성능 분석 · 실측 텐션</div>
-    <div class="hero-actions">
-      <button class="btn-primary" onclick="showScreen('screen-add')">
-        <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
-        <span data-i18n="home.newWork">새 작업</span>
-      </button>
-      <button class="btn-ghost" onclick="openMeter(null)" aria-label="meter">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-7 4 14 2-7h5"/></svg>
-      </button>
-      <button class="btn-ghost" onclick="openBackupSheet()" aria-label="backup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
-      </button>
-    </div>
-  </div>
-
-  <div class="stat-strip">
-    <button class="stat-chip" onclick="setFilter('all')">
-      <div class="n" id="stat-total">0</div><div class="l" data-i18n="stat.total">총 작업</div>
-    </button>
-    <button class="stat-chip" onclick="openUserFilter()">
-      <div class="n" id="stat-users">0</div><div class="l" data-i18n="stat.players">선수</div>
-    </button>
-    <button class="stat-chip" onclick="setFilter('recent')">
-      <div class="n sm" id="stat-recent">—</div><div class="l" data-i18n="stat.recent">최근</div>
-    </button>
-  </div>
-
-  <div class="filter-banner" id="filter-banner" hidden>
-    <span id="filter-banner-text"></span>
-    <button onclick="setFilter('all')" data-i18n="filter.showAll">전체보기</button>
-  </div>
-
-  <div class="home-content" id="list-container"></div>
-</div>
-
-<!-- ══════════ ADD/EDIT ══════════ -->
-<div class="screen" id="screen-add">
-  <div class="sub-header">
-    <button class="back-btn" onclick="cancelAddEdit()">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.back">뒤로</span>
-    </button>
-    <h1 id="add-screen-title" data-i18n="add.title">스트링 작업 추가</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="content">
-
-    <div class="form-label" data-i18n="add.player">선수</div>
-    <div class="card-group">
-      <div class="row"><label data-i18n="add.name">이름</label>
-        <input type="text" id="f-name" data-i18n-ph="add.namePh" placeholder="이름 입력"></div>
-    </div>
-
-    <div class="form-label" data-i18n="add.racket">라켓 정보</div>
-    <div class="card-group">
-      <div class="row"><label data-i18n="add.brand">브랜드</label>
-        <button type="button" class="picker-trigger" id="tp-rbrand" onclick="pickRacketBrand()">
-          <span class="val empty" data-i18n="common.select">선택</span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </button></div>
-      <div class="inline-add" id="rbrand-add" hidden><input type="text" id="f-rbrand-c" data-i18n-ph="add.brandPh" placeholder="브랜드명 직접 입력"></div>
-      <div class="row"><label data-i18n="add.model1">모델명</label>
-        <button type="button" class="picker-trigger" id="tp-rmodel1" onclick="pickRacketModel()">
-          <span class="val empty" data-i18n="common.select">선택</span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </button></div>
-      <div class="inline-add" id="rmodel1-add" hidden><input type="text" id="f-rmodel1-c" data-i18n-ph="add.modelPh" placeholder="모델명 직접 입력"></div>
-      <div class="row"><label data-i18n="add.model2">추가 모델</label>
-        <input type="text" id="f-rmodel2" data-i18n-ph="common.optional" placeholder="선택사항"></div>
-    </div>
-    <div class="card-group">
-      <div class="row"><label data-i18n="add.pattern">패턴</label>
-        <button type="button" class="picker-trigger" id="tp-pattern" onclick="pickPattern()">
-          <span class="val">16x19</span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </button></div>
-      <div class="row"><label data-i18n="add.grip">그립</label>
-        <button type="button" class="picker-trigger" id="tp-grip" onclick="pickGrip()">
-          <span class="val">2</span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </button></div>
-      <div class="row"><label data-i18n="add.weight">무게</label>
-        <div class="suffix-wrap"><input type="number" id="f-weight" placeholder="0" inputmode="decimal"><span class="suffix">g</span></div></div>
-    </div>
-
-    <div class="form-label" data-i18n="add.string">스트링 정보</div>
-    <div class="card-group">
-      <div class="toggle-row">
-        <div>
-          <div class="tl" data-i18n="add.hybrid">하이브리드</div>
-          <div class="ts" data-i18n="add.hybridSub">MAIN / CROSS 개별 설정</div>
+    <div class="content">
+      <div class="stat-row">
+        <div class="stat-card">
+          <span class="stat-label">총 작업 수</span>
+          <div class="stat-num" id="stat-total">0</div>
         </div>
-        <label class="toggle"><input type="checkbox" id="f-hybrid" onchange="toggleHybrid()"><span class="sl"></span></label>
-      </div>
-    </div>
-    <div id="string-normal">
-      <div class="block-label" data-i18n="add.single">SINGLE</div>
-      <div id="sn-fields"></div>
-    </div>
-    <div id="string-hybrid" hidden>
-      <div class="block-label">MAIN</div><div id="sm-fields"></div>
-      <div class="block-label">CROSS</div><div id="sc-fields"></div>
-    </div>
-
-    <div class="form-label" data-i18n="add.measure">실측 텐션 (음향 측정)</div>
-    <div class="meas-card">
-      <div class="meas-head">
-        <div class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-7 4 14 2-7h5"/></svg><span data-i18n="add.measureTitle">스트링베드 공명 측정</span></div>
-        <button class="meas-clear" id="meas-clear" onclick="clearMeasurement()" hidden data-i18n="common.reset">초기화</button>
-      </div>
-      <div id="meas-empty">
-        <div style="font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-bottom:14px" data-i18n="add.measureDesc">스트링을 손가락으로 튕겨 울림 소리로 실제 텐션(주파수·DT)을 측정합니다.</div>
-      </div>
-      <div class="meas-vals" id="meas-vals" hidden>
-        <div class="meas-v"><div class="num" id="meas-hz">—</div><div class="cap">Hz</div></div>
-        <div class="meas-v"><div class="num g" id="meas-dt">—</div><div class="cap" data-i18n="meas.dt">DT 지수</div></div>
-        <div class="meas-v"><div class="num" id="meas-lbs">—</div><div class="cap" data-i18n="meas.lbs">환산 LBS</div></div>
-      </div>
-      <button class="meas-btn" onclick="openMeter('form')" style="margin-top:14px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-        <span id="meas-btn-label" data-i18n="add.measureBtn">측정 시작</span>
-      </button>
-    </div>
-
-    <div class="form-label" data-i18n="add.workInfo">작업 정보</div>
-    <div class="card-group">
-      <div class="row"><label data-i18n="add.date">작업 일자</label>
-        <button type="button" class="picker-trigger" onclick="openDatePicker()">
-          <span class="val" id="date-display">날짜 선택</span>
-          <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </button>
-        <input type="hidden" id="f-date"></div>
-      <div class="row"><label data-i18n="add.place">작업 장소</label>
-        <input type="text" id="f-place" data-i18n-ph="add.placePh" placeholder="장소"></div>
-    </div>
-
-    <button class="btn-save" onclick="saveEntry()"><span id="save-btn-label" data-i18n="add.save">저장하기</span></button>
-    <div class="spacer"></div>
-  </div>
-</div>
-
-<!-- ══════════ DETAIL ══════════ -->
-<div class="screen" id="screen-detail">
-  <div class="sub-header">
-    <button class="back-btn" onclick="showScreen('screen-home')">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.list">목록</span>
-    </button>
-    <h1 data-i18n="detail.title">상세 정보</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="content" id="detail-content"></div>
-</div>
-
-<!-- ══════════ FEEDBACK ══════════ -->
-<div class="screen" id="screen-feedback">
-  <div class="sub-header">
-    <button class="back-btn" id="fb-back-btn">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.back">뒤로</span>
-    </button>
-    <h1 data-i18n="fb.title">피드백 추가</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="content">
-    <div class="form-label" data-i18n="fb.rating">성능 평가</div>
-    <div class="radar-wrap"><svg id="radar-svg" width="280" height="250" viewBox="0 0 280 250" style="overflow:visible"></svg></div>
-    <div style="height:6px"></div>
-    <div class="sliders" id="score-sliders"></div>
-    <div class="form-label" data-i18n="fb.summary">총평</div>
-    <div class="fb-textarea"><textarea id="f-fb-text" data-i18n-ph="fb.summaryPh" placeholder="스트링 사용 느낌을 자유롭게 적어주세요..." rows="4"></textarea></div>
-    <button class="btn-save" onclick="saveFeedback()" data-i18n="fb.save">피드백 저장</button>
-    <div class="spacer"></div>
-  </div>
-</div>
-
-<!-- ══════════ SETTINGS ══════════ -->
-<div class="screen" id="screen-settings">
-  <div class="sub-header">
-    <button class="back-btn" onclick="showScreen('screen-home')">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.done">완료</span>
-    </button>
-    <h1 data-i18n="set.title">설정</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="content">
-    <div class="form-label" data-i18n="set.general">일반</div>
-    <div class="set-group">
-      <div class="set-row no-tap">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20M12 2a15 15 0 0 0 0 20"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.language">언어</div><div class="ss" data-i18n="set.languageSub">Language</div></div>
-        <div class="lang-seg">
-          <button id="lang-ko" onclick="setLang('ko')">한국어</button>
-          <button id="lang-en" onclick="setLang('en')">EN</button>
+        <div class="stat-card">
+          <span class="stat-label">최근 작업</span>
+          <div class="stat-num" id="stat-recent">—</div>
         </div>
       </div>
-      <div class="set-row" onclick="openThemePicker()">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996C18.996 15.996 22 12.996 22 9c0-3.914-4.469-7-10-7z"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.theme">테마 색상</div><div class="ss" data-i18n="set.themeSub">포인트 색을 선택하세요</div></div>
-        <div class="set-sw" id="set-theme-sw"></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="pickHeadSizeSetting()">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="10" rx="7" ry="8"/><path d="M12 18v4"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.headSize">기본 헤드 사이즈</div><div class="ss" data-i18n="set.headSizeSub">측정 시 DT 계산 기준</div></div>
-        <div class="set-val" id="set-headsize-val">100 in²</div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-    </div>
 
-    <div class="form-label" data-i18n="set.customLists">커스텀 리스트</div>
-    <div class="set-group">
-      <div class="set-row" onclick="openCustomList('racketBrands')">
-        <div class="set-icon">🎾</div>
-        <div class="set-txt"><div class="st" data-i18n="set.racketBrands">라켓 브랜드</div><div class="ss" data-i18n="set.customSub">드럼롤에 추가할 항목 관리</div></div>
-        <div class="set-val" id="cnt-racketBrands">0</div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="openCustomModelPicker('racket')">
-        <div class="set-icon">🏸</div>
-        <div class="set-txt"><div class="st" data-i18n="set.racketModels">라켓 모델</div><div class="ss" data-i18n="set.modelSub">브랜드별 모델 추가</div></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="openCustomList('stringBrands')">
-        <div class="set-icon">🧵</div>
-        <div class="set-txt"><div class="st" data-i18n="set.stringBrands">스트링 브랜드</div><div class="ss" data-i18n="set.customSub">드럼롤에 추가할 항목 관리</div></div>
-        <div class="set-val" id="cnt-stringBrands">0</div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="openCustomModelPicker('string')">
-        <div class="set-icon">🪢</div>
-        <div class="set-txt"><div class="st" data-i18n="set.stringModels">스트링 모델</div><div class="ss" data-i18n="set.modelSub">브랜드별 모델 추가</div></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-    </div>
+      <button class="btn" onclick="showScreen('screen-add')" style="width:100%;margin-bottom:24px;">새 작업 추가</button>
 
-    <div class="form-label" data-i18n="set.data">데이터</div>
-    <div class="set-group">
-      <div class="toggle-row">
-        <div>
-          <div class="tl" data-i18n="set.autoBackup">주간 자동 백업</div>
-          <div class="ts" data-i18n="set.autoBackupSub">매주 첫 실행 시 자동 저장</div>
+      <div id="home-list">
+        <div class="empty-state">
+          <div class="empty-title">아직 기록이 없습니다</div>
+          <div class="empty-desc">스트링 작업을 기록하고 성능을 분석해보세요.</div>
         </div>
-        <label class="toggle"><input type="checkbox" id="f-autobackup" onchange="toggleAutoBackup()"><span class="sl"></span></label>
-      </div>
-      <div class="set-row" onclick="exportBackup()">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.export">백업 내보내기</div><div class="ss" data-i18n="set.exportSub">JSON 파일로 저장</div></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="triggerImport()">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.import">백업 복원하기</div><div class="ss" data-i18n="set.importSub">JSON 파일 불러오기</div></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </div>
-    <div class="spacer"></div>
+  </div>
+
+  <!-- ADD/EDIT SCREEN -->
+  <div class="screen" id="screen-add">
+    <div class="header">
+      <div class="header-sub">작업 기록</div>
+      <div class="header-title" id="add-title">새 작업<span style="color:var(--accent);">.</span></div>
+    </div>
+    <div class="content">
+      <!-- 라켓 정보 -->
+      <div class="form-section">
+        <div class="form-section-title">라켓 정보</div>
+        <div class="form-group">
+          <label class="form-label">브랜드</label>
+          <select class="form-select" id="racket-brand" onchange="updateRacketModels()">
+            <option value="">선택</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">모델</label>
+          <select class="form-select" id="racket-model">
+            <option value="">선택</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">헤드 사이즈 (in²)</label>
+          <input type="number" class="form-input" id="racket-headsize" min="80" max="125" value="100">
+        </div>
+      </div>
+
+      <!-- 스트링 정보 -->
+      <div class="form-section">
+        <div class="form-section-title">스트링 정보</div>
+        <div class="form-group">
+          <label class="form-label">브랜드</label>
+          <select class="form-select" id="string-brand" onchange="updateStringModels()">
+            <option value="">선택</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">모델</label>
+          <select class="form-select" id="string-model">
+            <option value="">선택</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">게이지 (mm)</label>
+          <input type="text" class="form-input" id="string-gauge" placeholder="예: 1.20">
+        </div>
+        <div class="form-group">
+          <label class="form-label">설정 텐션 (lbs)</label>
+          <input type="number" class="form-input" id="string-tension" step="0.5" placeholder="예: 52">
+        </div>
+      </div>
+
+      <!-- 작업 정보 -->
+      <div class="form-section">
+        <div class="form-section-title">작업 정보</div>
+        <div class="form-group">
+          <label class="form-label">작업 일자</label>
+          <input type="date" class="form-input" id="work-date">
+        </div>
+        <div class="form-group">
+          <label class="form-label">작업 장소</label>
+          <input type="text" class="form-input" id="work-place" placeholder="장소 입력">
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button class="btn btn-secondary" onclick="showScreen('screen-home')">취소</button>
+        <button class="btn" id="save-btn" onclick="saveEntry()">저장</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- DETAIL SCREEN -->
+  <div class="screen" id="screen-detail">
+    <div class="header">
+      <div class="header-sub">작업 상세</div>
+      <div class="header-title" id="detail-racket">상세 정보<span style="color:var(--accent);">.</span></div>
+    </div>
+    <div class="content">
+      <div class="form-section">
+        <div class="form-section-title">라켓</div>
+        <div class="detail-row"><span class="detail-label">브랜드</span><span class="detail-value" id="d-rb">—</span></div>
+        <div class="detail-row"><span class="detail-label">모델</span><span class="detail-value" id="d-rm">—</span></div>
+        <div class="detail-row"><span class="detail-label">헤드</span><span class="detail-value" id="d-rh">—</span></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">스트링</div>
+        <div class="detail-row"><span class="detail-label">브랜드</span><span class="detail-value" id="d-sb">—</span></div>
+        <div class="detail-row"><span class="detail-label">모델</span><span class="detail-value" id="d-sm">—</span></div>
+        <div class="detail-row"><span class="detail-label">게이지</span><span class="detail-value" id="d-sg">—</span></div>
+        <div class="detail-row"><span class="detail-label">텐션</span><span class="detail-value" id="d-st">—</span></div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">작업</div>
+        <div class="detail-row"><span class="detail-label">일자</span><span class="detail-value" id="d-date">—</span></div>
+        <div class="detail-row"><span class="detail-label">장소</span><span class="detail-value" id="d-place">—</span></div>
+      </div>
+
+      <!-- 피드백 탭 -->
+      <div class="form-section">
+        <div class="form-section-title">평가</div>
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('fb-list')">피드백</button>
+          <button class="tab-btn" onclick="switchTab('fb-add')">추가</button>
+        </div>
+        <div id="fb-list" class="tab-content active" style="margin-top:16px;">
+          <div id="feedback-list" style="font-size:12px;color:var(--text-secondary);">피드백 없음</div>
+        </div>
+        <div id="fb-add" class="tab-content" style="margin-top:16px;">
+          <div class="form-group">
+            <label class="form-label">평점 (1-5)</label>
+            <div class="rating-group" id="fb-rating">
+              <button class="rating-btn" data-val="1" onclick="setRating(1)">1</button>
+              <button class="rating-btn" data-val="2" onclick="setRating(2)">2</button>
+              <button class="rating-btn" data-val="3" onclick="setRating(3)">3</button>
+              <button class="rating-btn" data-val="4" onclick="setRating(4)">4</button>
+              <button class="rating-btn" data-val="5" onclick="setRating(5)">5</button>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">성능 분석</label>
+            <div class="axis-item">
+              <span class="axis-label">파워</span>
+              <input type="range" class="axis-slider" id="fb-power" min="0" max="5" value="3" step="0.1" onchange="updateAxisVal(this)">
+              <span class="axis-value" id="fb-power-val">3.0</span>
+            </div>
+            <div class="axis-item">
+              <span class="axis-label">컨트롤</span>
+              <input type="range" class="axis-slider" id="fb-control" min="0" max="5" value="3" step="0.1" onchange="updateAxisVal(this)">
+              <span class="axis-value" id="fb-control-val">3.0</span>
+            </div>
+            <div class="axis-item">
+              <span class="axis-label">스핀</span>
+              <input type="range" class="axis-slider" id="fb-spin" min="0" max="5" value="3" step="0.1" onchange="updateAxisVal(this)">
+              <span class="axis-value" id="fb-spin-val">3.0</span>
+            </div>
+            <div class="axis-item">
+              <span class="axis-label">편안함</span>
+              <input type="range" class="axis-slider" id="fb-comfort" min="0" max="5" value="3" step="0.1" onchange="updateAxisVal(this)">
+              <span class="axis-value" id="fb-comfort-val">3.0</span>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">의견</label>
+            <textarea class="form-textarea" id="fb-memo" placeholder="사용한 느낌을 자유롭게 적어주세요..."></textarea>
+          </div>
+          <button class="btn" onclick="saveFeedback()" style="width:100%;">피드백 저장</button>
+        </div>
+      </div>
+
+      <div class="btn-row" style="margin-top:32px;">
+        <button class="btn btn-secondary" onclick="showScreen('screen-home')">목록</button>
+        <button class="btn btn-secondary" onclick="editEntry()">수정</button>
+        <button class="btn btn-secondary" style="background:rgba(255,0,0,0.1);color:#ff6b6b;border-color:rgba(255,0,0,0.3);" onclick="deleteEntry()">삭제</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SETTINGS SCREEN -->
+  <div class="screen" id="screen-settings">
+    <div class="header">
+      <div class="header-sub">앱 설정</div>
+      <div class="header-title">설정<span style="color:var(--accent);">.</span></div>
+    </div>
+    <div class="content">
+      <div class="form-section">
+        <div class="form-section-title">일반</div>
+        <div class="form-group">
+          <label class="form-label">언어</label>
+          <select class="form-select" id="set-lang">
+            <option value="ko">한국어</option>
+            <option value="en">English</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label">기본 헤드 사이즈</label>
+          <select class="form-select" id="set-headsize">
+            <option value="98">98 in²</option>
+            <option value="100" selected>100 in²</option>
+            <option value="105">105 in²</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="form-section-title">데이터</div>
+        <button class="btn btn-secondary" style="width:100%;margin-bottom:12px;" onclick="exportData()">데이터 내보내기</button>
+        <button class="btn btn-secondary" style="width:100%;" onclick="importData()">데이터 복원</button>
+        <input type="file" id="import-file" style="display:none;" accept=".json">
+      </div>
+
+      <div style="text-align:center;padding:40px 0;color:var(--text-muted);font-size:11px;">
+        <div>스트링 작업일지 v3.0</div>
+        <div style="margin-top:4px;">Editorial Edition</div>
+      </div>
+    </div>
   </div>
 </div>
-
-<!-- ══════════ METER ══════════ -->
-<div class="screen" id="screen-meter">
-  <div class="sub-header">
-    <button class="back-btn" onclick="closeMeter()">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.back">뒤로</span>
-    </button>
-    <h1 data-i18n="meter.title">텐션 측정기</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="meter-stage">
-    <div class="meter-scope">
-      <div class="scope-grid"></div>
-      <canvas id="scope-canvas"></canvas>
-    </div>
-    <div class="meter-readout">
-      <span class="meter-hz" id="meter-hz">—</span><span class="meter-hz-unit">Hz</span>
-    </div>
-    <div class="stability"><div class="bar" id="stability-bar"></div></div>
-    <div class="meter-status" id="meter-status" data-i18n="meter.idle">마이크를 켜고 스트링을 튕겨주세요</div>
-
-    <div class="meter-dt-row">
-      <div class="meter-dt"><div class="num acc" id="meter-dt">—</div><div class="cap" data-i18n="meas.dt">DT 지수</div></div>
-      <div class="meter-dt"><div class="num" id="meter-lbs">—</div><div class="cap" data-i18n="meas.lbs">환산 LBS</div></div>
-      <div class="meter-dt"><div class="num" id="meter-tone">—</div><div class="cap" data-i18n="meter.tone">음정</div></div>
-    </div>
-
-    <div class="meter-headsize" onclick="pickHeadSizeMeter()">
-      <span class="l" data-i18n="meter.headSize">헤드 사이즈</span>
-      <span class="v"><span id="meter-headsize-val">100</span> in²
-        <svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;color:var(--ink-4)"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-    </div>
-
-    <div class="meter-actions">
-      <button class="meter-mic-btn" id="mic-btn" onclick="toggleMic()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-        <span id="mic-btn-label" data-i18n="meter.start">마이크 켜기</span>
-      </button>
-      <button class="meter-use-btn" id="meter-use-btn" onclick="useMeasurement()" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <span data-i18n="meter.use">이 값 사용</span>
-      </button>
-    </div>
-
-    <div class="meter-guide">
-      <div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span data-i18n="meter.guideTitle">측정 방법</span></div>
-      <ol id="meter-guide-list"></ol>
-      <div class="warn" id="meter-warn"></div>
-    </div>
-  </div>
-</div>
-
-</div><!-- /app -->
 
 <div class="toast" id="toast"></div>
-<input type="file" id="import-file" accept=".json" hidden onchange="handleImportFile(event)">
-
-<!-- generic bottom sheet host -->
-<div class="overlay" id="overlay" onclick="closeSheet()"></div>
-<div class="sheet" id="sheet"></div>
-
-<!-- date drum sheet -->
-<div class="overlay" id="date-overlay" onclick="closeDatePicker()"></div>
-<div class="sheet" id="date-sheet">
-  <div class="sheet-header">
-    <button class="sheet-cancel" onclick="closeDatePicker()" data-i18n="common.cancel">취소</button>
-    <span class="sheet-title" data-i18n="date.title">날짜 선택</span>
-    <button class="sheet-confirm" onclick="confirmDate()" data-i18n="common.confirm">확인</button>
-  </div>
-  <div class="drum-body">
-    <div class="drum-col" id="drum-year"></div>
-    <div class="drum-col" id="drum-month"></div>
-    <div class="drum-col" id="drum-day"></div>
-    <div class="drum-selector"></div>
-  </div>
-</div>
-
-<!-- single-column drum sheet -->
-<div class="overlay" id="pick-overlay" onclick="closePicker()"></div>
-<div class="sheet" id="pick-sheet">
-  <div class="sheet-header">
-    <button class="sheet-cancel" onclick="closePicker()" data-i18n="common.cancel">취소</button>
-    <span class="sheet-title" id="pick-title">선택</span>
-    <button class="sheet-confirm" onclick="confirmPicker()" data-i18n="common.confirm">확인</button>
-  </div>
-  <div class="drum-body single">
-    <div class="drum-col" id="pick-col"></div>
-    <div class="drum-selector"></div>
-  </div>
-</div>
 
 <script src="app.js"></script>
 <script>
-if ('serviceWorker' in navigator) {
-  let reloaded = false;
-  const hadController = !!navigator.serviceWorker.controller;
-  // when a freshly-deployed SW takes control, reload once to show the new version
-  navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (reloaded || !hadController) return;  // skip the very first install
-    reloaded = true;
-    window.location.reload();
-  });
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' })
-      .then(reg => {
-        reg.update();  // check for a new deploy right away
-        // re-check whenever the app comes back to the foreground
-        document.addEventListener('visibilitychange', () => {
-          if (document.visibilityState === 'visible') reg.update();
-        });
-        // and periodically while it stays open
-        setInterval(() => reg.update(), 30 * 60 * 1000);
-      })
-      .catch(err => console.log('SW error:', err));
-  });
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
 }
+
+function switchTab(id){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  event.target.classList.add('active');
+}
+
+function showToast(msg){
+  const toast=document.getElementById('toast');
+  toast.textContent=msg;
+  toast.classList.add('show');
+  setTimeout(()=>toast.classList.remove('show'), 2000);
+}
+
+function updateAxisVal(el){
+  const val=(parseFloat(el.value)).toFixed(1);
+  document.getElementById(el.id+'-val').textContent=val;
+}
+
+function setRating(val){
+  document.querySelectorAll('.rating-btn').forEach(b=>b.classList.remove('active'));
+  document.querySelector(`[data-val="${val}"]`).classList.add('active');
+}
+
+document.getElementById('work-date').valueAsDate=new Date();
 </script>
 </body>
 </html>
