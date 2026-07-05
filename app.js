@@ -124,6 +124,7 @@ const K_CALIBRATION = 'sm_calibration_v1';
    fill/border/page-glow) and the dark ink-on-accent text are derived at
    runtime in applyTheme(), and kept in the AC object for canvas/SVG use. */
 const THEMES = [
+  { id:'clay',   ac:'#c8704f', a2:'#b45a3c', deep:'#9a4433', ink:'#fdf3ec' },
   { id:'green',  ac:'#4fe38b', a2:'#2fbf6f', deep:'#1c8f52', ink:'#05130b' },
   { id:'yellow', ac:'#f5c73e', a2:'#e0ad1f', deep:'#b0850e', ink:'#2a2100' },
   { id:'blue',   ac:'#4d8dff', a2:'#3f7ff0', deep:'#2059c0', ink:'#06122b' },
@@ -133,7 +134,35 @@ const THEMES = [
   { id:'rose',   ac:'#fb7185', a2:'#ec5570', deep:'#d1425a', ink:'#2c0a12' },
 ];
 /* live accent values for JS-generated SVG / canvas (set by applyTheme) */
-let AC = { accent:'#4fe38b', deep:'#1c8f52', ink:'#05130b', soft:'', glow:'', line:'', bg:'', fill:'', b22:'', s28:'', s50:'' };
+let AC = { accent:'#4fe38b', deep:'#1c8f52', ink:'#05130b', text:'#4fe38b', soft:'', glow:'', line:'', bg:'', fill:'', b22:'', s28:'', s50:'' };
+
+/* ---------- light / dark mode ---------- */
+let currentMode = 'dark'; // resolved: 'dark' | 'light'
+const MODE_MQL = window.matchMedia('(prefers-color-scheme: light)');
+const SUN_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>';
+const MOON_SVG = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.8A9 9 0 1 1 11.2 3 7 7 0 0 0 21 12.8z"/></svg>';
+function cssVar(n){ return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function resolveMode(){
+  const pref = settings.mode || 'system';
+  if(pref==='light' || pref==='dark') return pref;
+  return MODE_MQL.matches ? 'light' : 'dark';
+}
+function applyMode(){
+  currentMode = resolveMode();
+  document.documentElement.setAttribute('data-mode', currentMode);
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta) meta.setAttribute('content', currentMode==='light' ? '#f5f1e7' : '#16130d');
+  applyTheme(settings.theme);   // recompute accent-text for this mode
+  syncModeUI();
+  refreshThemedGraphics();
+}
+function setMode(m){ settings.mode=m; persistSettings(); applyMode(); haptic('light'); }
+function toggleMode(){ settings.mode = (currentMode==='light' ? 'dark' : 'light'); persistSettings(); applyMode(); haptic('light'); }
+function syncModeUI(){
+  const pref = settings.mode || 'system';
+  ['system','light','dark'].forEach(k=>{ const b=document.getElementById('mode-'+k); if(b) b.classList.toggle('on', pref===k); });
+  const ic=document.getElementById('mode-toggle-icon'); if(ic) ic.innerHTML = (currentMode==='light' ? SUN_SVG : MOON_SVG);
+}
 
 function hexToRgb(h){ h=h.replace('#',''); if(h.length===3) h=h.split('').map(c=>c+c).join(''); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
 function getTheme(id){ return THEMES.find(x=>x.id===id) || THEMES[0]; }
@@ -142,13 +171,15 @@ function applyTheme(id){
   const th=getTheme(id);
   const [r,g,b]=hexToRgb(th.ac);
   const rgba=(a)=>`rgba(${r},${g},${b},${a})`;
-  AC={ accent:th.ac, deep:th.deep, ink:th.ink,
+  const textCol = (currentMode==='light') ? th.deep : th.ac;
+  AC={ accent:th.ac, deep:th.deep, ink:th.ink, text:textCol,
        soft:rgba(0.14), glow:rgba(0.28), line:rgba(0.40), bg:rgba(0.06),
        fill:rgba(0.16), b22:rgba(0.22), s28:rgba(0.28), s50:rgba(0.50) };
   const s=document.documentElement.style;
   s.setProperty('--accent',th.ac);
   s.setProperty('--accent-2',th.a2);
   s.setProperty('--accent-deep',th.deep);
+  s.setProperty('--accent-text',textCol);
   s.setProperty('--accent-ink',th.ink);
   s.setProperty('--accent-soft',AC.soft);
   s.setProperty('--accent-glow',AC.glow);
@@ -170,7 +201,7 @@ function calcLbs(dt){ if(dt==null||!isFinite(dt)) return null; return Math.round
 
 /* ---------- state ---------- */
 let entries = [];
-let settings = { lang: 'ko', headSize: 100, theme: 'green', autoBackup: true, lastAutoBackupWeek: '' };
+let settings = { lang: 'ko', headSize: 100, theme: 'clay', mode: 'system', autoBackup: true, lastAutoBackupWeek: '' };
 let customData = { racketBrands:[], racketModels:{}, stringBrands:[], stringModels:{} };
 let currentIdx = null;
 let editingIdx = null;
@@ -186,7 +217,7 @@ const I18N = {
   ko:{
     'hero.eyebrow':"STRINGER'S LOG",
     'hero.title':'스트링 <span class="accent">작업일지</span>',
-    'hero.sub':'라켓 스트링 기록 · 성능 분석 · 실측 텐션',
+    'hero.sub':'라켓 스트링 기록 · 성능 분석 · 플레이 피드백',
     'home.newWork':'새 작업',
     'stat.total':'총 작업','stat.players':'선수','stat.recent':'최근',
     'filter.showAll':'전체보기','list.records':'작업 기록',
@@ -211,8 +242,9 @@ const I18N = {
     'axis.control':'컨트롤','axis.power':'파워','axis.spin':'스핀','axis.comfort':'편안함','axis.feel':'느낌','axis.durability':'내구성',
     'set.title':'설정','set.general':'일반','set.language':'언어','set.languageSub':'Language','set.headSize':'기본 헤드 사이즈','set.headSizeSub':'측정 시 DT 계산 기준',
     'set.theme':'테마 색상','set.themeSub':'포인트 색을 선택하세요','set.autoBackup':'주간 자동 백업','set.autoBackupSub':'매주 첫 실행 시 자동 저장',
+    'set.mode':'화면 모드','set.modeSub':'라이트 · 다크 전환','mode.system':'시스템','mode.light':'라이트','mode.dark':'다크',
     'theme.title':'테마 색상',
-    'theme.green':'시그널 그린','theme.yellow':'옐로우','theme.blue':'코발트 블루','theme.cyan':'아쿠아 시안','theme.violet':'바이올렛','theme.orange':'선셋 오렌지','theme.rose':'로즈 핑크',
+    'theme.clay':'테라코타','theme.green':'시그널 그린','theme.yellow':'옐로우','theme.blue':'코발트 블루','theme.cyan':'아쿠아 시안','theme.violet':'바이올렛','theme.orange':'선셋 오렌지','theme.rose':'로즈 핑크',
     'toast.autoBackup':'주간 자동 백업 완료','backup.restoreAuto':'자동 백업본 복원','backup.autoAt':'최근 자동 백업',
     'set.customLists':'커스텀 리스트','set.racketBrands':'라켓 브랜드','set.racketModels':'라켓 모델','set.stringBrands':'스트링 브랜드','set.stringModels':'스트링 모델',
     'set.customSub':'드럼롤에 추가할 항목 관리','set.modelSub':'브랜드별 모델 추가',
@@ -238,7 +270,7 @@ const I18N = {
   en:{
     'hero.eyebrow':"STRINGER'S LOG",
     'hero.title':'Stringing <span class="accent">Log</span>',
-    'hero.sub':'Record · Analyze · Measure real tension',
+    'hero.sub':'Record · Analyze · Review play feedback',
     'home.newWork':'New job',
     'stat.total':'Jobs','stat.players':'Players','stat.recent':'Recent',
     'filter.showAll':'Show all','list.records':'Records',
@@ -263,8 +295,9 @@ const I18N = {
     'axis.control':'Control','axis.power':'Power','axis.spin':'Spin','axis.comfort':'Comfort','axis.feel':'Feel','axis.durability':'Durability',
     'set.title':'Settings','set.general':'General','set.language':'Language','set.languageSub':'언어','set.headSize':'Default head size','set.headSizeSub':'Basis for DT calculation',
     'set.theme':'Theme color','set.themeSub':'Choose your accent','set.autoBackup':'Weekly auto-backup','set.autoBackupSub':'Auto-save on first launch each week',
+    'set.mode':'Appearance','set.modeSub':'Light · Dark','mode.system':'System','mode.light':'Light','mode.dark':'Dark',
     'theme.title':'Theme color',
-    'theme.green':'Signal Green','theme.yellow':'Yellow','theme.blue':'Cobalt Blue','theme.cyan':'Aqua Cyan','theme.violet':'Violet','theme.orange':'Sunset Orange','theme.rose':'Rose Pink',
+    'theme.clay':'Terracotta','theme.green':'Signal Green','theme.yellow':'Yellow','theme.blue':'Cobalt Blue','theme.cyan':'Aqua Cyan','theme.violet':'Violet','theme.orange':'Sunset Orange','theme.rose':'Rose Pink',
     'toast.autoBackup':'Weekly backup saved','backup.restoreAuto':'Restore auto-backup','backup.autoAt':'Last auto-backup',
     'set.customLists':'Custom lists','set.racketBrands':'Racket brands','set.racketModels':'Racket models','set.stringBrands':'String brands','set.stringModels':'String models',
     'set.customSub':'Manage items shown in the picker','set.modelSub':'Add models per brand',
@@ -323,7 +356,8 @@ function escAttr(s){ return escHtml(s); }
 /* ══════════════════════════════════════════ init ══════════════════════════════════════════ */
 (function init(){
   loadAll();
-  applyTheme(settings.theme);
+  applyMode();
+  MODE_MQL.addEventListener('change', ()=>{ if((settings.mode||'system')==='system') applyMode(); });
   applyStaticI18n();
   syncLangUI();
   syncThemeUI();
@@ -335,8 +369,6 @@ function escAttr(s){ return escHtml(s); }
   drumState.y=today.getFullYear(); drumState.m=today.getMonth()+1; drumState.d=today.getDate();
   setDateDisplay(drumState.y,drumState.m,drumState.d);
   updateCustomCounts();
-  document.getElementById('set-headsize-val').textContent=settings.headSize+' in²';
-  document.getElementById('meter-headsize-val').textContent=settings.headSize;
   renderList();
   initBackHandler();
   setTimeout(maybeAutoBackup, 700);
@@ -607,12 +639,12 @@ function renderList(){
           }else{ const g=s.single||{}; sl=`${g.brand||''} ${g.model||''}`.trim()+(g.tension?` ${g.tension}lbs`:''); }
         }catch(err){ sl=''; }
         const bc=brandColor(r.brand),bi=brandInitial(r.brand);
-        const meas=e.measurement?`<span class="pill amber">${e.measurement.freq}Hz</span>`:'';
+
         return `<div class="card" onclick="showDetail(${e._i})">
           <div class="card-thumb" style="background:${bc}22;border:1px solid ${bc}44;color:${bc}">${bi}</div>
           <div class="card-body">
             <div class="card-title">${escHtml(rl)}</div>
-            <div class="card-meta">${e.hybrid?'<span class="pill">HYBRID</span>':''}${meas}<span class="card-str">${escHtml(sl||'—')}</span><span class="card-date">${e.date||''}</span></div>
+            <div class="card-meta">${e.hybrid?'<span class="pill">HYBRID</span>':''}<span class="card-str">${escHtml(sl||'—')}</span><span class="card-date">${e.date||''}</span></div>
             ${e.place?`<div class="card-sub">📍 ${escHtml(e.place)}</div>`:''}
           </div></div>`;
       }).join('');
@@ -620,15 +652,23 @@ function renderList(){
     }).join('');
 }
 function racketSVG(){
-  return `<div style="filter:drop-shadow(0 6px 24px ${AC.b22});margin-bottom:6px">
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="132" height="132">
-    <ellipse cx="100" cy="82" rx="52" ry="60" fill="none" stroke="#3a413d" stroke-width="5"/>
-    <ellipse cx="100" cy="82" rx="52" ry="60" fill="none" stroke="${AC.s28}" stroke-width="2"/>
-    ${[78,86,94,100,106,114,122].map(x=>`<line x1="${x}" y1="24" x2="${x}" y2="140" stroke="${AC.s50}" stroke-width="1.1"/>`).join('')}
-    ${[50,59,68,77,86,95,104].map(y=>`<line x1="50" y1="${y}" x2="150" y2="${y}" stroke="rgba(255,255,255,0.22)" stroke-width="1.1"/>`).join('')}
-    <rect x="93" y="140" width="14" height="24" rx="3" fill="#20261f" stroke="#2c332d" stroke-width="1"/>
-    <rect x="88" y="163" width="24" height="30" rx="5" fill="#20261f" stroke="#2c332d" stroke-width="1"/>
-    <circle cx="100" cy="82" r="6" fill="${AC.accent}" opacity="0.9"/>
+  return `<div style="margin-bottom:12px">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="152" height="152">
+    <defs><path id="hemArc" d="M100 100 m-72 0 a72 72 0 0 0 144 0"/></defs>
+    <circle cx="100" cy="100" r="92" style="fill:none;stroke:var(--ink);stroke-width:1.4;opacity:.42"/>
+    <circle cx="100" cy="100" r="84" style="fill:none;stroke:var(--ink);stroke-width:3.4"/>
+    <text style="font-family:'Nanum Myeongjo',serif;font-size:11.5px;letter-spacing:3px;fill:var(--accent-text)" text-anchor="middle"><textPath href="#hemArc" startOffset="50%">STRINGER'S LOG</textPath></text>
+    <ellipse cx="100" cy="142" rx="42" ry="10" style="fill:var(--accent)"/>
+    <rect x="95" y="118" width="10" height="24" style="fill:var(--ink)"/>
+    <ellipse cx="92" cy="88" rx="34" ry="42" style="fill:var(--ink)"/>
+    <ellipse cx="92" cy="88" rx="23.5" ry="30" style="fill:var(--bg-elev)"/>
+    <g style="stroke:var(--ink);stroke-width:1.3;opacity:.5">
+      <line x1="92" y1="50" x2="92" y2="126"/><line x1="76" y1="60" x2="76" y2="116"/><line x1="108" y1="60" x2="108" y2="116"/>
+      <line x1="61" y1="88" x2="123" y2="88"/><line x1="65" y1="70" x2="119" y2="70"/><line x1="65" y1="106" x2="119" y2="106"/>
+    </g>
+    <path d="M126 102 L147 110" style="stroke:var(--ink);stroke-width:5;stroke-linecap:round"/>
+    <circle cx="155" cy="113" r="10.5" style="fill:var(--accent)"/>
+    <circle cx="155" cy="113" r="3.4" style="fill:var(--bg-elev)"/>
   </svg></div>`;
 }
 
@@ -642,16 +682,7 @@ function showDetail(idx){
     sHtml=`<div class="d-row"><span class="dk">${t('d.type')}</span><span class="dv"><span class="badge">${t('d.hybrid')}</span></span></div>
       <div class="divider-lbl"><span>MAIN</span></div>${strRows(m)}<div class="divider-lbl"><span>CROSS</span></div>${strRows(cr)}`;
   }else sHtml=strRows(e.strings.single||{});
-  let measHtml='';
-  if(e.measurement){ const m=e.measurement;
-    measHtml=`<div class="detail-label">${t('detail.measure')}</div>
-      <div class="meas-detail"><div class="mvals">
-        <div class="mv"><div class="num">${m.freq}</div><div class="cap">Hz</div></div>
-        <div class="mv"><div class="num g">${m.dt}</div><div class="cap">${t('meas.dt')}</div></div>
-        <div class="mv"><div class="num" style="color:var(--ink)">≈${m.lbs!=null?m.lbs:calcLbs(m.dt)}</div><div class="cap">${t('meas.lbs')}</div></div>
-        ${m.tone?`<div class="mv"><div class="num" style="color:var(--ink)">${escHtml(m.tone)}</div><div class="cap">${t('meter.tone')}</div></div>`:''}
-      </div><div class="note">${t('d.measuredAt')}: ${m.at?m.at.slice(0,10):'-'} · head ${m.headSize||settings.headSize} in²</div></div>`;
-  }
+  const measHtml='';
   let fbHtml='';
   if(e.feedbacks&&e.feedbacks.length){ const fb=e.feedbacks[e.feedbacks.length-1];
     fbHtml=`<div class="detail-label">${t('detail.recentFb')} · ${fb.date||''}</div><div class="fb-saved"><div style="display:flex;justify-content:center">${miniRadar(fb.scores)}</div>${fb.text?`<div class="fb-text-prev">${escHtml(fb.text)}</div>`:''}</div>`;
@@ -714,15 +745,16 @@ function buildRadar(scores,cx,cy,r,small){
   const n=AXES_KEYS.length;
   const pt=(val,scale,i)=>{const a=Math.PI*2*i/n-Math.PI/2;return[cx+scale*val/10*r*Math.cos(a),cy+scale*val/10*r*Math.sin(a)];};
   let o='';
-  [0.2,0.4,0.6,0.8,1.0].forEach(s=>{const pts=AXES_KEYS.map((_,i)=>pt(10,s,i));o+=`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>`;});
+  const web=cssVar('--radar-web')||'rgba(255,255,255,0.09)';
+  [0.2,0.4,0.6,0.8,1.0].forEach(s=>{const pts=AXES_KEYS.map((_,i)=>pt(10,s,i));o+=`<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="${web}" stroke-width="1"/>`;});
   AXES_KEYS.forEach((label,i)=>{
-    const[x2,y2]=pt(10,1,i); o+=`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="rgba(255,255,255,0.09)" stroke-width="1"/>`;
+    const[x2,y2]=pt(10,1,i); o+=`<line x1="${cx}" y1="${cy}" x2="${x2}" y2="${y2}" stroke="${web}" stroke-width="1"/>`;
     const[lx,ly]=pt(10+(small?3.2:3.4),1,i);
-    o+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="${small?10:11}" fill="${AC.accent}" font-family="Pretendard,sans-serif" font-weight="700">${t('axis.'+label)}</text>`;
+    o+=`<text x="${lx}" y="${ly}" text-anchor="middle" dominant-baseline="middle" font-size="${small?10:11}" fill="${AC.text}" font-family="Pretendard,sans-serif" font-weight="700">${t('axis.'+label)}</text>`;
   });
   const spts=scores.map((v,i)=>pt(v,1,i));
-  o+=`<polygon points="${spts.map(p=>p.join(',')).join(' ')}" fill="${AC.fill}" stroke="${AC.accent}" stroke-width="2.4"/>`;
-  spts.forEach(([x,y])=>o+=`<circle cx="${x}" cy="${y}" r="${small?3:4}" fill="${AC.accent}"/>`);
+  o+=`<polygon points="${spts.map(p=>p.join(',')).join(' ')}" fill="${AC.fill}" stroke="${AC.text}" stroke-width="2.4"/>`;
+  spts.forEach(([x,y])=>o+=`<circle cx="${x}" cy="${y}" r="${small?3:4}" fill="${AC.text}"/>`);
   return o;
 }
 
@@ -792,7 +824,6 @@ function setLang(lang){
   });
   setDateDisplay(drumState.y,drumState.m,drumState.d);
   updateCustomCounts();
-  document.getElementById('set-headsize-val').textContent=settings.headSize+' in²';
   renderList();
   haptic('light');
 }
@@ -1035,11 +1066,9 @@ function confirmRestore(){
   if(pendingImport.settings){ settings={...settings,...pendingImport.settings}; }
   persist(); persistCustom(); persistSettings();
   pendingImport=null; closeSheet();
-  applyTheme(settings.theme);
+  applyMode();
   applyStaticI18n(); syncLangUI(); syncThemeUI(); updateCustomCounts();
   document.getElementById('f-autobackup').checked = settings.autoBackup !== false;
-  document.getElementById('set-headsize-val').textContent=settings.headSize+' in²';
-  document.getElementById('meter-headsize-val').textContent=settings.headSize;
   renderList();
   showToast(`✅ ${entries.length}${t('toast.restoreDone')}`);
 }
@@ -1250,7 +1279,7 @@ function drawScope(buf){
   if(scopeCanvas.width!==w*dpr||scopeCanvas.height!==h*dpr){ scopeCanvas.width=w*dpr; scopeCanvas.height=h*dpr; scopeCtx.scale(dpr,dpr); }
   scopeCtx.clearRect(0,0,w,h);
   scopeCtx.lineWidth=2;
-  scopeCtx.strokeStyle=isLocked?AC.accent:'#f6c453';
+  scopeCtx.strokeStyle=isLocked?AC.text:(cssVar('--amber-text')||'#f6c453');
   scopeCtx.beginPath();
   const step=Math.floor(buf.length/w)||1;
   for(let x=0;x<w;x++){

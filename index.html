@@ -14,49 +14,79 @@
 <link rel="icon" type="image/png" sizes="512x512" href="icon-512x512.png">
 <style>
 @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
-@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Newsreader:ital,opsz,wght@0,6..72,400..600;1,6..72,400..500&family=IBM+Plex+Mono:wght@400;500;600&display=swap');
 
 *{box-sizing:border-box;margin:0;padding:0;font-family:'Pretendard',-apple-system,BlinkMacSystemFont,sans-serif;}
 
 :root{
-  /* base */
-  --bg:#0b0d0c;
-  --bg-elev:#101312;
-  --surface:#15100908; /* placeholder overwritten below */
-  --surface:#161a18;
-  --surface-2:#1d221f;
-  --surface-3:#262c28;
-  --line:rgba(255,255,255,0.07);
-  --line-2:rgba(255,255,255,0.13);
-  /* ink */
-  --ink:#f1f4f2;
-  --ink-2:rgba(241,244,242,0.74);
-  --ink-3:rgba(241,244,242,0.46);
-  --ink-4:rgba(241,244,242,0.26);
-  /* accent — themable (defaults = signal green; overridden at runtime by applyTheme) */
-  --accent:#4fe38b;
-  --accent-2:#2fbf6f;
-  --accent-deep:#1c8f52;
-  --accent-ink:#05130b;            /* dark text on accent fills */
-  --accent-soft:rgba(79,227,139,0.14);
-  --accent-glow:rgba(79,227,139,0.28);
-  --accent-line:rgba(79,227,139,0.40);   /* drum selector borders */
-  --accent-b22:rgba(79,227,139,0.22);    /* thin accent borders */
-  --accent-bg:rgba(79,227,139,0.06);     /* page glow tint */
-  --accent-fill:rgba(79,227,139,0.16);   /* radar fill */
-  /* amber — instrument / meter */
-  --amber:#f6c453;
-  --amber-soft:rgba(246,196,83,0.14);
-  --amber-glow:rgba(246,196,83,0.30);
-  --danger:#ff6b6b;
-  --danger-soft:rgba(255,107,107,0.12);
-  /* radii */
-  --r-sm:10px;
-  --r-md:16px;
-  --r-lg:22px;
-  --r-xl:28px;
-  --mono:'JetBrains Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+  color-scheme:dark;
+  /* ═══ DARK — editorial, warm ink on espresso ═══ */
+  --bg:#16130d;
+  --bg-elev:#1c1810;
+  --surface:#201b12;
+  --surface-2:#282115;
+  --surface-3:#332a1b;
+  --line:rgba(242,236,224,0.12);
+  --line-2:rgba(242,236,224,0.22);
+  --ink:#f2ece0;
+  --ink-2:rgba(242,236,224,0.72);
+  --ink-3:rgba(242,236,224,0.50);
+  --ink-4:rgba(242,236,224,0.32);
+  --accent:#c8704f;
+  --accent-2:#b45a3c;
+  --accent-deep:#9a4433;
+  --accent-text:#d98a63;
+  --accent-ink:#fdf3ec;
+  --accent-soft:rgba(200,112,79,0.15);
+  --accent-glow:rgba(200,112,79,0.26);
+  --accent-line:rgba(200,112,79,0.40);
+  --accent-b22:rgba(200,112,79,0.24);
+  --accent-bg:rgba(200,112,79,0.05);
+  --accent-fill:rgba(200,112,79,0.16);
+  --amber:#d9a441;
+  --amber-text:#e0b464;
+  --amber-soft:rgba(217,164,65,0.14);
+  --amber-glow:rgba(217,164,65,0.28);
+  --danger:#e0685e;
+  --danger-soft:rgba(224,104,94,0.13);
+  --header-bg:rgba(22,19,13,0.84);
+  --overlay:rgba(10,7,3,0.7);
+  --radar-web:rgba(242,236,224,0.12);
+  --racket-frame:#4a4030;
+  --racket-string:rgba(242,236,224,0.22);
+  --racket-handle:#2a2417;
+  --racket-handle-line:#3a3020;
+  --r-sm:6px;
+  --r-md:9px;
+  --r-lg:12px;
+  --r-xl:18px;
+  --mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
   --serif:'Nanum Myeongjo','나눔명조',Georgia,serif;
+  --display:'Newsreader',Georgia,serif;
+}
+[data-mode="light"]{
+  color-scheme:light;
+  /* ═══ LIGHT — warm paper / editorial lab ═══ */
+  --bg:#efe9db;
+  --bg-elev:#f5f1e7;
+  --surface:#fbf7ee;
+  --surface-2:#f1ebdc;
+  --surface-3:#e6dcc7;
+  --line:rgba(35,32,26,0.13);
+  --line-2:rgba(35,32,26,0.22);
+  --ink:#23201a;
+  --ink-2:rgba(35,32,26,0.74);
+  --ink-3:rgba(35,32,26,0.52);
+  --ink-4:rgba(35,32,26,0.36);
+  --accent-text:#9a4433;
+  --amber-text:#8a6410;
+  --header-bg:rgba(245,241,231,0.86);
+  --overlay:rgba(35,28,18,0.4);
+  --radar-web:rgba(35,32,26,0.14);
+  --racket-frame:#c7bda6;
+  --racket-string:rgba(35,32,26,0.26);
+  --racket-handle:#ded3bd;
+  --racket-handle-line:#cabfa6;
 }
 html,body{height:100%;background:var(--bg);color:var(--ink);font-size:14px;-webkit-font-smoothing:antialiased;overscroll-behavior:none;overflow-x:hidden;}
 body{background:
@@ -82,11 +112,11 @@ body{background:
 .hero-eyebrow{
   font-family:var(--mono);
   font-size:10.5px;font-weight:600;letter-spacing:2.5px;
-  color:var(--accent);text-transform:uppercase;
+  color:var(--accent-text);text-transform:uppercase;
   display:flex;align-items:center;gap:8px;
 }
 .hero-eyebrow::before{
-  content:'';width:16px;height:1.5px;background:var(--accent);display:inline-block;
+  content:'';width:16px;height:1.5px;background:var(--accent-text);display:inline-block;
 }
 .icon-btn{
   width:40px;height:40px;border-radius:50%;
@@ -99,19 +129,19 @@ body{background:
 .icon-btn svg{width:19px;height:19px;}
 .hero-title{
   font-family:var(--serif);
-  font-size:34px;font-weight:800;color:var(--ink);
-  letter-spacing:1px;line-height:1.18;margin-bottom:6px;word-break:keep-all;
+  font-size:38px;font-weight:800;color:var(--ink);
+  letter-spacing:.5px;line-height:1.12;margin-bottom:7px;word-break:keep-all;
 }
-.hero-title .accent{color:var(--accent);}
+.hero-title .accent{color:var(--accent-text);}
 .hero-sub{font-size:13px;color:var(--ink-3);font-weight:400;margin-bottom:22px;letter-spacing:.2px;}
 
 /* primary action row */
-.hero-actions{display:grid;grid-template-columns:1fr auto auto;gap:9px;}
+.hero-actions{display:grid;grid-template-columns:1fr auto;gap:9px;}
 .btn-primary{
   display:flex;align-items:center;justify-content:center;gap:8px;
   background:var(--accent);color:var(--accent-ink);
   border:none;border-radius:var(--r-lg);height:52px;padding:0 18px;
-  font-size:14.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;
+  font-size:14.5px;font-weight:800;cursor:pointer;letter-spacing:-.2px;white-space:nowrap;
   box-shadow:0 8px 24px var(--accent-glow);
   -webkit-tap-highlight-color:transparent;transition:transform .1s,filter .15s;
 }
@@ -137,9 +167,9 @@ body{background:
   transition:background .14s,transform .1s,border-color .14s;
 }
 .stat-chip:active{transform:scale(.97);background:var(--surface-2);border-color:var(--line-2);}
-.stat-chip .n{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--ink);letter-spacing:-.5px;line-height:1;}
-.stat-chip .n.sm{font-size:15px;}
-.stat-chip .l{font-size:10.5px;color:var(--ink-4);font-weight:600;letter-spacing:.4px;margin-top:7px;text-transform:uppercase;}
+.stat-chip .n{font-family:var(--display);font-size:30px;font-weight:500;color:var(--ink);letter-spacing:0;line-height:1;}
+.stat-chip .n.sm{font-size:22px;}
+.stat-chip .l{font-family:var(--mono);font-size:9.5px;color:var(--ink-4);font-weight:500;letter-spacing:1px;margin-top:8px;text-transform:uppercase;}
 
 /* filter banner */
 .filter-banner{
@@ -147,7 +177,7 @@ body{background:
   margin:12px 22px 2px;padding:10px 14px;background:var(--accent-soft);
   border:1px solid var(--accent-b22);border-radius:var(--r-md);
 }
-.filter-banner span{font-size:12.5px;color:var(--accent);font-weight:700;}
+.filter-banner span{font-size:12.5px;color:var(--accent-text);font-weight:700;}
 .filter-banner button{
   background:none;border:none;color:var(--ink);font-size:12px;font-weight:600;
   cursor:pointer;-webkit-tap-highlight-color:transparent;text-decoration:underline;
@@ -159,7 +189,7 @@ body{background:
   display:flex;align-items:baseline;justify-content:space-between;
   padding:12px 22px 10px;
 }
-.section-lead h2{font-size:16px;font-weight:800;color:var(--ink);letter-spacing:-.3px;}
+.section-lead h2{font-family:var(--serif);font-size:18px;font-weight:800;color:var(--ink);letter-spacing:0;}
 .section-lead .hint{font-size:11px;color:var(--ink-4);font-family:var(--mono);}
 
 .user-group{margin-bottom:6px;}
@@ -174,27 +204,27 @@ body{background:
 .user-head .cnt{font-size:11.5px;color:var(--ink-4);margin-left:auto;font-family:var(--mono);}
 
 .card{
-  display:flex;align-items:center;gap:14px;
-  margin:5px 16px;padding:13px 14px;
-  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);
+  display:flex;align-items:center;gap:15px;
+  margin:0 22px;padding:15px 0;
+  background:transparent;border:none;border-bottom:1px solid var(--line);border-radius:0;
   cursor:pointer;-webkit-tap-highlight-color:transparent;
-  transition:background .13s,transform .1s,border-color .13s;
+  transition:opacity .13s;
 }
-.card:active{transform:scale(.985);background:var(--surface-2);border-color:var(--line-2);}
+.card:active{opacity:.55;}
 .card-thumb{
-  width:50px;height:50px;border-radius:13px;flex-shrink:0;
+  width:46px;height:46px;border-radius:7px;flex-shrink:0;
   display:flex;align-items:center;justify-content:center;
-  font-weight:900;font-size:19px;position:relative;overflow:hidden;
+  font-family:var(--serif);font-weight:700;font-size:20px;position:relative;overflow:hidden;
 }
 .card-body{flex:1;min-width:0;}
-.card-title{font-size:15px;font-weight:700;color:var(--ink);letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.card-title{font-family:var(--serif);font-size:16.5px;font-weight:700;color:var(--ink);letter-spacing:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .card-meta{display:flex;align-items:center;gap:6px;margin-top:4px;flex-wrap:wrap;}
 .card-str{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;}
 .pill{
   font-size:9px;font-weight:800;padding:2.5px 7px;border-radius:20px;letter-spacing:.4px;flex-shrink:0;
-  background:var(--accent-soft);color:var(--accent);text-transform:uppercase;
+  background:var(--accent-soft);color:var(--accent-text);text-transform:uppercase;
 }
-.pill.amber{background:var(--amber-soft);color:var(--amber);}
+.pill.amber{background:var(--amber-soft);color:var(--amber-text);}
 .card-date{font-size:11px;color:var(--ink-4);flex-shrink:0;margin-left:auto;font-family:var(--mono);white-space:nowrap;}
 .card-sub{font-size:11px;color:var(--ink-4);margin-top:3px;}
 
@@ -203,12 +233,12 @@ body{background:
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:72px 30px;text-align:center;gap:12px;
 }
-.empty .t{font-size:17px;font-weight:800;color:var(--ink);}
+.empty .t{font-family:var(--serif);font-size:19px;font-weight:800;color:var(--ink);}
 .empty .d{font-size:13.5px;color:var(--ink-3);line-height:1.7;}
 
 /* ═══════════ SUB HEADER ═══════════ */
 .sub-header{
-  background:rgba(11,13,12,0.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
+  background:var(--header-bg);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);
   padding:calc(env(safe-area-inset-top)) 12px 0;height:calc(56px + env(safe-area-inset-top));
   display:flex;align-items:center;gap:8px;
   border-bottom:1px solid var(--line);
@@ -216,7 +246,7 @@ body{background:
 }
 .sub-header h1{font-size:16px;font-weight:700;color:var(--ink);letter-spacing:-.3px;flex:1;text-align:center;}
 .back-btn{
-  background:none;border:none;color:var(--accent);cursor:pointer;
+  background:none;border:none;color:var(--accent-text);cursor:pointer;
   height:40px;padding:0 6px;display:flex;align-items:center;gap:3px;
   font-size:14.5px;font-weight:600;-webkit-tap-highlight-color:transparent;
   white-space:nowrap;min-width:64px;
@@ -227,7 +257,7 @@ body{background:
   min-width:64px;display:flex;justify-content:flex-end;
 }
 .header-action button{
-  background:none;border:none;color:var(--accent);font-size:14.5px;font-weight:700;
+  background:none;border:none;color:var(--accent-text);font-size:14.5px;font-weight:700;
   cursor:pointer;padding:0 6px;height:40px;-webkit-tap-highlight-color:transparent;
 }
 .content{flex:1;overflow-y:auto;padding:20px 16px calc(40px + env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
@@ -235,7 +265,7 @@ body{background:
 /* ═══════════ FORM ═══════════ */
 .form-label{
   font-family:var(--mono);
-  font-size:10.5px;font-weight:600;color:var(--accent);
+  font-size:10.5px;font-weight:600;color:var(--accent-text);
   letter-spacing:1.6px;text-transform:uppercase;margin:26px 0 9px 4px;
 }
 .form-label:first-child{margin-top:0;}
@@ -289,7 +319,7 @@ body{background:
 /* string block */
 .block-label{
   font-family:var(--mono);
-  font-size:10px;font-weight:700;color:var(--accent);
+  font-size:10px;font-weight:700;color:var(--accent-text);
   letter-spacing:1.4px;text-transform:uppercase;
   margin:18px 0 8px 4px;display:flex;align-items:center;gap:10px;
 }
@@ -311,15 +341,15 @@ body{background:
 }
 .meas-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .meas-head .t{font-size:13.5px;font-weight:700;color:var(--ink);display:flex;align-items:center;gap:7px;}
-.meas-head .t svg{width:16px;height:16px;color:var(--amber);}
+.meas-head .t svg{width:16px;height:16px;color:var(--amber-text);}
 .meas-vals{display:flex;gap:10px;}
 .meas-v{flex:1;background:var(--bg-elev);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px;text-align:center;}
-.meas-v .num{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--amber);letter-spacing:-.5px;}
-.meas-v .num.g{color:var(--accent);}
+.meas-v .num{font-family:var(--mono);font-size:19px;font-weight:700;color:var(--amber-text);letter-spacing:-.5px;}
+.meas-v .num.g{color:var(--accent-text);}
 .meas-v .cap{font-size:9.5px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:4px;text-transform:uppercase;}
 .meas-btn{
   display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  background:var(--amber-soft);color:var(--amber);border:1px solid rgba(246,196,83,0.3);
+  background:var(--amber-soft);color:var(--amber-text);border:1px solid rgba(246,196,83,0.3);
   border-radius:var(--r-sm);padding:13px;font-size:14px;font-weight:700;
   cursor:pointer;-webkit-tap-highlight-color:transparent;transition:background .14s,transform .1s;
   font-family:'Pretendard',sans-serif;
@@ -340,7 +370,7 @@ body{background:
 
 /* ═══════════ DETAIL ═══════════ */
 .detail-label{
-  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent);
+  font-family:var(--mono);font-size:10.5px;font-weight:600;color:var(--accent-text);
   letter-spacing:1.6px;text-transform:uppercase;margin:26px 0 9px 4px;
 }
 .detail-label:first-child{margin-top:0;}
@@ -350,9 +380,9 @@ body{background:
 .dk{font-size:14px;color:var(--ink-3);flex-shrink:0;}
 .dv{font-size:14px;font-weight:600;color:var(--ink);text-align:right;}
 .dv.mono{font-family:var(--mono);}
-.badge{background:var(--accent-soft);color:var(--accent);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px;}
+.badge{background:var(--accent-soft);color:var(--accent-text);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:.3px;}
 .divider-lbl{display:flex;align-items:center;gap:8px;padding:9px 16px;}
-.divider-lbl span{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent);white-space:nowrap;letter-spacing:1px;}
+.divider-lbl span{font-family:var(--mono);font-size:10px;font-weight:700;color:var(--accent-text);white-space:nowrap;letter-spacing:1px;}
 .divider-lbl::before,.divider-lbl::after{content:'';flex:1;height:1px;background:var(--line);}
 
 .meas-detail{
@@ -361,15 +391,15 @@ body{background:
 }
 .meas-detail .mvals{display:flex;gap:10px;margin-bottom:12px;}
 .meas-detail .mv{flex:1;text-align:center;}
-.meas-detail .mv .num{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--amber);}
-.meas-detail .mv .num.g{color:var(--accent);}
+.meas-detail .mv .num{font-family:var(--mono);font-size:24px;font-weight:800;letter-spacing:-.5px;color:var(--amber-text);}
+.meas-detail .mv .num.g{color:var(--accent-text);}
 .meas-detail .mv .cap{font-size:10px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:5px;text-transform:uppercase;}
 .meas-detail .note{font-size:11.5px;color:var(--ink-3);line-height:1.6;padding-top:12px;border-top:1px solid var(--line);}
-.meas-detail .note b{color:var(--amber);font-weight:700;}
+.meas-detail .note b{color:var(--amber-text);font-weight:700;}
 
 .action-btn{
   display:flex;align-items:center;justify-content:center;gap:8px;width:100%;
-  background:var(--surface);color:var(--accent);border:1px solid var(--line);
+  background:var(--surface);color:var(--accent-text);border:1px solid var(--line);
   border-radius:var(--r-md);padding:16px;font-size:14.5px;font-weight:700;
   cursor:pointer;margin-bottom:9px;-webkit-tap-highlight-color:transparent;
   transition:background .13s;font-family:'Pretendard',sans-serif;
@@ -394,7 +424,7 @@ body{background:
 input[type=range]{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:var(--surface-3);border-radius:2px;outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--accent);border:none;box-shadow:0 2px 8px var(--accent-glow);}
 input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;background:var(--accent);border:none;}
-.sl-val{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent);width:24px;text-align:right;flex-shrink:0;}
+.sl-val{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--accent-text);width:24px;text-align:right;flex-shrink:0;}
 .fb-textarea{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:15px 16px;margin-bottom:4px;}
 .fb-textarea textarea{width:100%;border:none;outline:none;font-size:15px;font-family:'Pretendard',sans-serif;color:var(--ink);background:transparent;resize:vertical;min-height:96px;line-height:1.6;}
 .fb-textarea textarea::placeholder{color:var(--ink-4);}
@@ -414,7 +444,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .toast.err{background:var(--danger);color:#fff;box-shadow:0 8px 28px rgba(255,107,107,.35);}
 
 /* ═══════════ SHEET (bottom) ═══════════ */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.68);z-index:300;opacity:0;transition:opacity .22s;}
+.overlay{display:none;position:fixed;inset:0;background:var(--overlay);z-index:300;opacity:0;transition:opacity .22s;}
 .overlay.show{display:block;opacity:1;}
 .sheet{
   position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);
@@ -428,7 +458,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .sheet-header{display:flex;align-items:center;justify-content:space-between;padding:18px 20px 14px;border-bottom:1px solid var(--line);}
 .sheet-title{font-size:15px;font-weight:700;color:var(--ink);}
 .sheet-cancel{background:none;border:none;font-size:15px;color:var(--ink-3);cursor:pointer;padding:2px 4px;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
-.sheet-confirm{background:none;border:none;font-size:15px;font-weight:800;color:var(--accent);cursor:pointer;padding:2px 4px;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
+.sheet-confirm{background:none;border:none;font-size:15px;font-weight:800;color:var(--accent-text);cursor:pointer;padding:2px 4px;font-family:'Pretendard',sans-serif;-webkit-tap-highlight-color:transparent;}
 
 /* drum */
 .drum-body{display:flex;height:216px;position:relative;overflow:hidden;padding:0 16px;background:var(--bg-elev);}
@@ -441,7 +471,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .drum-col::-webkit-scrollbar{display:none;}
 .drum-item{height:44px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:400;color:var(--ink-4);scroll-snap-align:center;user-select:none;cursor:pointer;transition:color .1s,font-weight .1s;padding:0 10px;text-align:center;}
 .drum-item.active{color:var(--ink);font-weight:700;}
-.drum-item.add{color:var(--accent);font-weight:600;}
+.drum-item.add{color:var(--accent-text);font-weight:600;}
 .drum-pad{height:86px;flex-shrink:0;}
 
 /* generic list sheet (settings custom lists / user filter) */
@@ -476,7 +506,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .set-row:active{background:var(--surface-2);}
 .set-row.no-tap{cursor:default;}
 .set-row.no-tap:active{background:none;}
-.set-icon{width:34px;height:34px;border-radius:11px;background:var(--surface-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent);}
+.set-icon{width:34px;height:34px;border-radius:11px;background:var(--surface-3);display:flex;align-items:center;justify-content:center;flex-shrink:0;color:var(--accent-text);}
 .set-icon svg{width:18px;height:18px;}
 .set-txt{flex:1;min-width:0;}
 .set-txt .st{font-size:14.5px;font-weight:600;color:var(--ink);}
@@ -485,7 +515,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 .set-chev{color:var(--ink-4);flex-shrink:0;display:flex;}
 .set-chev svg{width:14px;height:14px;}
 .lang-seg{display:flex;background:var(--bg-elev);border:1px solid var(--line-2);border-radius:12px;padding:3px;flex-shrink:0;}
-.lang-seg button{border:none;background:none;color:var(--ink-3);font-size:13px;font-weight:700;padding:7px 14px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;font-family:'Pretendard',sans-serif;}
+.lang-seg button{border:none;background:none;color:var(--ink-3);font-size:13px;font-weight:700;padding:7px 12px;border-radius:9px;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:all .15s;font-family:'Pretendard',sans-serif;white-space:nowrap;}
 .lang-seg button.on{background:var(--accent);color:var(--accent-ink);}
 
 /* ═══════════ METER ═══════════ */
@@ -503,18 +533,18 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
   background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
   background-size:100% 30px, 40px 100%;opacity:.5;}
 .meter-readout{text-align:center;margin-bottom:8px;}
-.meter-hz{font-family:var(--mono);font-size:64px;font-weight:800;color:var(--amber);letter-spacing:-2px;line-height:1;transition:color .2s;}
-.meter-hz.locked{color:var(--accent);}
+.meter-hz{font-family:var(--mono);font-size:64px;font-weight:800;color:var(--amber-text);letter-spacing:-2px;line-height:1;transition:color .2s;}
+.meter-hz.locked{color:var(--accent-text);}
 .meter-hz-unit{font-family:var(--mono);font-size:20px;font-weight:600;color:var(--ink-4);margin-left:6px;}
 .meter-status{font-size:13px;color:var(--ink-3);margin-top:10px;min-height:20px;font-weight:600;}
-.meter-status.locked{color:var(--accent);}
+.meter-status.locked{color:var(--accent-text);}
 .stability{width:170px;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;margin:14px auto 0;}
 .stability .bar{height:100%;width:0;background:var(--amber);border-radius:3px;transition:width .12s,background .2s;}
 .stability .bar.full{background:var(--accent);}
 .meter-dt-row{display:flex;gap:12px;width:100%;margin:24px 0 8px;}
 .meter-dt{flex:1;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:16px;text-align:center;}
 .meter-dt .num{font-family:var(--mono);font-size:26px;font-weight:800;color:var(--ink);letter-spacing:-1px;}
-.meter-dt .num.acc{color:var(--accent);}
+.meter-dt .num.acc{color:var(--accent-text);}
 .meter-dt .cap{font-size:10px;color:var(--ink-4);font-weight:600;letter-spacing:.6px;margin-top:6px;text-transform:uppercase;}
 .meter-headsize{
   display:flex;align-items:center;justify-content:space-between;width:100%;
@@ -550,11 +580,11 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
   padding:16px;margin-top:18px;
 }
 .meter-guide .gt{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:10px;display:flex;align-items:center;gap:7px;}
-.meter-guide .gt svg{width:15px;height:15px;color:var(--amber);}
+.meter-guide .gt svg{width:15px;height:15px;color:var(--amber-text);}
 .meter-guide ol{margin:0;padding-left:20px;}
 .meter-guide li{font-size:12.5px;color:var(--ink-3);line-height:1.75;}
 .meter-guide .warn{font-size:11.5px;color:var(--ink-4);line-height:1.6;margin-top:12px;padding-top:12px;border-top:1px solid var(--line);}
-.meter-guide .warn b{color:var(--amber);}
+.meter-guide .warn b{color:var(--amber-text);}
 
 /* theme picker */
 .set-sw{width:20px;height:20px;border-radius:7px;flex-shrink:0;box-shadow:0 0 0 1px var(--line-2) inset;}
@@ -586,9 +616,12 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
   <div class="home-hero">
     <div class="hero-topbar">
       <div class="hero-eyebrow" data-i18n="hero.eyebrow">STRINGER'S LOG</div>
+      <div style="display:flex;gap:9px;align-items:center;">
+      <button class="icon-btn" id="mode-toggle-btn" onclick="toggleMode()" aria-label="theme mode"><span id="mode-toggle-icon"></span></button>
       <button class="icon-btn" onclick="openSettings()" aria-label="settings">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
       </button>
+      </div>
     </div>
     <h1 class="hero-title" data-i18n-html="hero.title">스트링 <span class="accent">작업일지</span></h1>
     <div class="hero-sub" data-i18n="hero.sub">라켓 스트링 기록 · 성능 분석 · 실측 텐션</div>
@@ -596,9 +629,6 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
       <button class="btn-primary" onclick="showScreen('screen-add')">
         <svg viewBox="0 0 24 24" fill="none"><path d="M12 5v14M5 12h14" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
         <span data-i18n="home.newWork">새 작업</span>
-      </button>
-      <button class="btn-ghost" onclick="openMeter(null)" aria-label="meter">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-7 4 14 2-7h5"/></svg>
       </button>
       <button class="btn-ghost" onclick="openBackupSheet()" aria-label="backup">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
@@ -695,26 +725,6 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
       <div class="block-label">CROSS</div><div id="sc-fields"></div>
     </div>
 
-    <div class="form-label" data-i18n="add.measure">실측 텐션 (음향 측정)</div>
-    <div class="meas-card">
-      <div class="meas-head">
-        <div class="t"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h3l2-7 4 14 2-7h5"/></svg><span data-i18n="add.measureTitle">스트링베드 공명 측정</span></div>
-        <button class="meas-clear" id="meas-clear" onclick="clearMeasurement()" hidden data-i18n="common.reset">초기화</button>
-      </div>
-      <div id="meas-empty">
-        <div style="font-size:12.5px;color:var(--ink-3);line-height:1.6;margin-bottom:14px" data-i18n="add.measureDesc">스트링을 손가락으로 튕겨 울림 소리로 실제 텐션(주파수·DT)을 측정합니다.</div>
-      </div>
-      <div class="meas-vals" id="meas-vals" hidden>
-        <div class="meas-v"><div class="num" id="meas-hz">—</div><div class="cap">Hz</div></div>
-        <div class="meas-v"><div class="num g" id="meas-dt">—</div><div class="cap" data-i18n="meas.dt">DT 지수</div></div>
-        <div class="meas-v"><div class="num" id="meas-lbs">—</div><div class="cap" data-i18n="meas.lbs">환산 LBS</div></div>
-      </div>
-      <button class="meas-btn" onclick="openMeter('form')" style="margin-top:14px">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-        <span id="meas-btn-label" data-i18n="add.measureBtn">측정 시작</span>
-      </button>
-    </div>
-
     <div class="form-label" data-i18n="add.workInfo">작업 정보</div>
     <div class="card-group">
       <div class="row"><label data-i18n="add.date">작업 일자</label>
@@ -788,16 +798,19 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
           <button id="lang-en" onclick="setLang('en')">EN</button>
         </div>
       </div>
+      <div class="set-row no-tap">
+        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor" stroke="none"/></svg></div>
+        <div class="set-txt"><div class="st" data-i18n="set.mode">화면 모드</div><div class="ss" data-i18n="set.modeSub">라이트 · 다크 전환</div></div>
+        <div class="lang-seg" id="mode-seg">
+          <button id="mode-system" onclick="setMode('system')" data-i18n="mode.system">시스템</button>
+          <button id="mode-light" onclick="setMode('light')" data-i18n="mode.light">라이트</button>
+          <button id="mode-dark" onclick="setMode('dark')" data-i18n="mode.dark">다크</button>
+        </div>
+      </div>
       <div class="set-row" onclick="openThemePicker()">
         <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996C18.996 15.996 22 12.996 22 9c0-3.914-4.469-7-10-7z"/></svg></div>
         <div class="set-txt"><div class="st" data-i18n="set.theme">테마 색상</div><div class="ss" data-i18n="set.themeSub">포인트 색을 선택하세요</div></div>
         <div class="set-sw" id="set-theme-sw"></div>
-        <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      </div>
-      <div class="set-row" onclick="pickHeadSizeSetting()">
-        <div class="set-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="10" rx="7" ry="8"/><path d="M12 18v4"/></svg></div>
-        <div class="set-txt"><div class="st" data-i18n="set.headSize">기본 헤드 사이즈</div><div class="ss" data-i18n="set.headSizeSub">측정 시 DT 계산 기준</div></div>
-        <div class="set-val" id="set-headsize-val">100 in²</div>
         <div class="set-chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
       </div>
     </div>
@@ -852,82 +865,6 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
   </div>
 </div>
 
-<!-- ══════════ METER ══════════ -->
-<div class="screen" id="screen-meter">
-  <div class="sub-header">
-    <button class="back-btn" onclick="closeMeter()">
-      <svg viewBox="0 0 9 15" fill="none"><path d="M7.5 1.5L2 7.5l5.5 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      <span data-i18n="common.back">뒤로</span>
-    </button>
-    <h1 data-i18n="meter.title">텐션 측정기</h1>
-    <div class="header-action"></div>
-  </div>
-  <div class="meter-stage">
-    <div class="meter-scope">
-      <div class="scope-grid"></div>
-      <canvas id="scope-canvas"></canvas>
-    </div>
-    <div class="meter-readout">
-      <span class="meter-hz" id="meter-hz">—</span><span class="meter-hz-unit">Hz</span>
-    </div>
-    <div class="stability"><div class="bar" id="stability-bar"></div></div>
-    <div class="meter-status" id="meter-status" data-i18n="meter.idle">마이크를 켜고 스트링을 튕겨주세요</div>
-
-    <div class="meter-dt-row">
-      <div class="meter-dt"><div class="num acc" id="meter-dt">—</div><div class="cap" data-i18n="meas.dt">DT 지수</div></div>
-      <div class="meter-dt"><div class="num" id="meter-lbs">—</div><div class="cap" data-i18n="meas.lbs">환산 LBS</div></div>
-      <div class="meter-dt"><div class="num" id="meter-tone">—</div><div class="cap" data-i18n="meter.tone">음정</div></div>
-    </div>
-
-    <!-- ═══ confidence indicator ═══ -->
-    <div style="background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:12px;margin:16px 0;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-      <div>
-        <div style="font-size:11px;color:var(--ink-4);text-transform:uppercase;font-weight:700;margin-bottom:6px;">신뢰도</div>
-        <div style="height:4px;width:120px;background:var(--surface-2);border-radius:2px;overflow:hidden;"><div id="confidence-fill" style="height:100%;background:var(--accent);width:50%;transition:width .15s;"></div></div>
-      </div>
-      <div style="font-family:var(--mono);font-size:16px;font-weight:700;color:var(--accent);min-width:45px;text-align:right;" id="meter-confidence">50%</div>
-    </div>
-
-    <div class="meter-headsize" onclick="pickHeadSizeMeter()">
-      <span class="l" data-i18n="meter.headSize">헤드 사이즈</span>
-      <span class="v"><span id="meter-headsize-val">100</span> in²
-        <svg viewBox="0 0 24 24" fill="none" style="width:13px;height:13px;color:var(--ink-4)"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-      </span>
-    </div>
-
-    <div class="meter-actions">
-      <button class="meter-mic-btn" id="mic-btn" onclick="toggleMic()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v3"/></svg>
-        <span id="mic-btn-label" data-i18n="meter.start">마이크 켜기</span>
-      </button>
-      <button class="meter-use-btn" id="meter-use-btn" onclick="useMeasurement()" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-        <span data-i18n="meter.use">이 값 사용</span>
-      </button>
-    </div>
-
-    <!-- ═══ calibration section ═══ -->
-    <div style="background:var(--accent-soft);border:1px solid var(--accent-b22);border-radius:var(--r-md);padding:14px;margin:16px 0;">
-      <div style="font-size:12px;font-weight:700;color:var(--accent);text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px;">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:14px;height:14px;"><circle cx="12" cy="12" r="1"/><path d="M12 3v2m0 14v2M20.5 12h-2m-13 0H3M17.657 6.343l-1.414 1.414M8.757 15.243l-1.414 1.414M17.657 17.657l-1.414-1.414M8.757 8.757l-1.414-1.414"/></svg>
-        보정 설정
-      </div>
-      <div style="display:flex;gap:8px;margin-bottom:8px;">
-        <input type="number" id="cal-dt" placeholder="측정 DT" step="0.1" style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px;font-family:var(--mono);font-size:12px;color:var(--ink);"/>
-        <input type="number" id="cal-lbs" placeholder="정확한 lbs" step="0.5" style="flex:1;background:var(--bg);border:1px solid var(--line);border-radius:var(--r-sm);padding:8px;font-family:var(--mono);font-size:12px;color:var(--ink);"/>
-        <button onclick="performCalibration()" style="background:var(--accent);color:var(--accent-ink);border:none;border-radius:var(--r-sm);padding:8px 12px;font-weight:700;cursor:pointer;font-size:11px;">보정</button>
-      </div>
-      <div style="font-size:10px;color:var(--ink-4);line-height:1.5;">알려진 정전자 값으로 측정 후, DT와 정확한 lbs를 입력하세요.</div>
-    </div>
-
-    <div class="meter-guide">
-      <div class="gt"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span data-i18n="meter.guideTitle">측정 방법</span></div>
-      <ol id="meter-guide-list"></ol>
-      <div class="warn" id="meter-warn"></div>
-    </div>
-  </div>
-</div>
-
 </div><!-- /app -->
 
 <div class="toast" id="toast"></div>
@@ -969,17 +906,6 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 
 <script src="app.js"></script>
 <script>
-/* ═══ calibration helper ═══ */
-function performCalibration(){
-  const dtVal = parseFloat(document.getElementById('cal-dt').value);
-  const lbsVal = parseFloat(document.getElementById('cal-lbs').value);
-  
-  if(autoCalibrate(dtVal, lbsVal)){
-    document.getElementById('cal-dt').value = '';
-    document.getElementById('cal-lbs').value = '';
-  }
-}
-
 if ('serviceWorker' in navigator) {
   let reloaded = false;
   const hadController = !!navigator.serviceWorker.controller;
