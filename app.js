@@ -343,11 +343,13 @@ function persistSettings(){ localStorage.setItem(K_SETTINGS,JSON.stringify(setti
 function persistCustom(){ localStorage.setItem(K_CUSTOM,JSON.stringify(customData)); }
 function persistCalibration(){ localStorage.setItem(K_CALIBRATION,JSON.stringify({lbsPerDt:LBS_PER_DT})); }
 
-function racketBrands(){ return dedup([...DEF_RACKET_BRANDS,...customData.racketBrands]); }
-function racketModels(b){ return dedup([...(DEF_RACKET_MODELS[b]||[]),...((customData.racketModels||{})[b]||[])]); }
-function stringBrands(){ return dedup([...DEF_STRING_BRANDS,...customData.stringBrands]); }
-function stringModels(b){ return dedup([...(DEF_STRING_MODELS[b]||[]),...((customData.stringModels||{})[b]||[])]); }
+function racketBrands(){ return sortList(dedup([...DEF_RACKET_BRANDS,...customData.racketBrands])); }
+function racketModels(b){ return sortList(dedup([...(DEF_RACKET_MODELS[b]||[]),...((customData.racketModels||{})[b]||[])])); }
+function stringBrands(){ return sortList(dedup([...DEF_STRING_BRANDS,...customData.stringBrands])); }
+function stringModels(b){ return sortList(dedup([...(DEF_STRING_MODELS[b]||[]),...((customData.stringModels||{})[b]||[])])); }
 function dedup(a){ return [...new Set(a.filter(Boolean))]; }
+/* locale-aware ascending sort (numeric so model numbers order naturally) */
+function sortList(a){ return a.slice().sort((x,y)=>String(x).localeCompare(String(y),undefined,{numeric:true,sensitivity:'base'})); }
 
 /* ---------- html escape ---------- */
 function escHtml(s){ if(s==null) return ''; return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
@@ -381,7 +383,7 @@ function showScreen(id){
   document.getElementById(id).classList.add('active');
   window.scrollTo(0,0);
   if(id==='screen-home') renderList();
-  if(id==='screen-add' && editingIdx===null) resetForm();
+  if(id==='screen-add'){ buildDatalists(); if(editingIdx===null) resetForm(); }
 }
 function cancelAddEdit(){ if(editingIdx!==null){ const i=editingIdx; editingIdx=null; showDetail(i); } else showScreen('screen-home'); }
 function openSettings(){ showScreen('screen-settings'); }
@@ -465,19 +467,19 @@ function buildSF(p){
         <span class="val empty">${t('common.select')}</span>
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </button></div>
-    <div class="inline-add" id="${p}-bc-w" hidden><input type="text" id="${p}-bc" placeholder="${t('add.brandPh')}"></div>
+    <div class="inline-add" id="${p}-bc-w" hidden><input type="text" id="${p}-bc" list="dl-sbrand" autocomplete="off" placeholder="${t('add.brandPh')}"></div>
     <div class="row"><label>${t('add.model1')}</label>
       <button type="button" class="picker-trigger" id="tp-${p}-m" onclick="pickStrModel('${p}')">
         <span class="val empty">${t('common.select')}</span>
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </button></div>
-    <div class="inline-add" id="${p}-mc-w" hidden><input type="text" id="${p}-mc" placeholder="${t('add.modelPh')}"></div>
+    <div class="inline-add" id="${p}-mc-w" hidden><input type="text" id="${p}-mc" list="dl-smodel" autocomplete="off" placeholder="${t('add.modelPh')}"></div>
   </div>
   <div class="card-group">
     <div class="row"><label>${t('add.gauge')}</label>
-      <div class="suffix-wrap"><input type="text" id="${p}-g" placeholder="1.25" inputmode="decimal" oninput="fmtGauge(this)"><span class="suffix">mm</span></div></div>
+      <div class="suffix-wrap"><input type="text" id="${p}-g" list="dl-gauge" autocomplete="off" placeholder="1.25" inputmode="decimal" oninput="fmtGauge(this)"><span class="suffix">mm</span></div></div>
     <div class="row"><label>${t('add.tension')}</label>
-      <div class="suffix-wrap"><input type="number" id="${p}-t" placeholder="0" inputmode="decimal"><span class="suffix">lbs</span></div></div>
+      <div class="suffix-wrap"><input type="number" id="${p}-t" list="dl-tension" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">lbs</span></div></div>
   </div>`;
 }
 function pickStrBrand(p){
@@ -506,8 +508,10 @@ function toggleHybrid(){ const h=document.getElementById('f-hybrid').checked; do
 
 /* ══════════════════════════════════════════ form measurement ══════════════════════════════════════════ */
 function renderFormMeasurement(){
+  const emptyEl=document.getElementById('meas-empty');
+  if(!emptyEl) return;   // acoustic-measurement UI was removed — nothing to render
   const hasM=!!formMeasurement;
-  document.getElementById('meas-empty').hidden=hasM;
+  emptyEl.hidden=hasM;
   document.getElementById('meas-vals').hidden=!hasM;
   document.getElementById('meas-clear').hidden=!hasM;
   document.getElementById('meas-btn-label').textContent=hasM?t('add.measureAgain'):t('add.measureBtn');
@@ -516,6 +520,29 @@ function renderFormMeasurement(){
     document.getElementById('meas-lbs').textContent='≈'+lbs; }
 }
 function clearMeasurement(){ formMeasurement=null; renderFormMeasurement(); }
+
+/* ══════════════════════════════════════════ autocomplete history ══════════════════════════════════════════ */
+/* Populate <datalist>s from previously-entered records (most-recent first) so
+   free-typed fields suggest what you typed before. */
+function buildDatalists(){
+  const names=[],places=[],rbrands=[],rmodels=[],rmodels2=[],weights=[],gauges=[],tensions=[],sbrands=[],smodels=[];
+  const push=(arr,v)=>{ v=(v==null?'':String(v)).trim(); if(v && !arr.includes(v)) arr.push(v); };
+  for(let i=entries.length-1;i>=0;i--){            // newest first
+    const e=entries[i]||{}, r=e.racket||{}, s=e.strings||{};
+    push(names,e.name); push(places,e.place);
+    push(rbrands,r.brand); push(rmodels,r.model1); push(rmodels2,r.model2); push(weights,r.weight);
+    (e.hybrid?[s.main,s.cross]:[s.single]).forEach(x=>{
+      if(!x) return;
+      push(sbrands,x.brand); push(smodels,x.model);
+      push(gauges,(x.gauge||'').replace('mm','')); push(tensions,x.tension);
+    });
+  }
+  const fill=(id,arr)=>{ const dl=document.getElementById(id); if(dl) dl.innerHTML=arr.map(v=>`<option value="${escAttr(v)}"></option>`).join(''); };
+  fill('dl-name',names); fill('dl-place',places);
+  fill('dl-rbrand',rbrands); fill('dl-rmodel',rmodels); fill('dl-rmodel2',rmodels2);
+  fill('dl-weight',weights); fill('dl-gauge',gauges); fill('dl-tension',tensions);
+  fill('dl-sbrand',sbrands); fill('dl-smodel',smodels);
+}
 
 /* ══════════════════════════════════════════ form save/reset/edit ══════════════════════════════════════════ */
 function resetForm(){
@@ -616,13 +643,14 @@ function renderList(){
   document.getElementById('stat-recent').textContent=allDates.length?allDates[allDates.length-1].slice(5).replace('-','/'):'—';
   if(!entries.length){ banner.hidden=true; c.innerHTML=`<div class="empty">${racketSVG()}<div class="t">${t('empty.title')}</div><div class="d">${t('empty.desc')}</div></div>`; return; }
   let indexed=entries.map((e,i)=>({...e,_i:i}));
+  const byNewest=(a,b)=>(b.date||'').localeCompare(a.date||'')||b._i-a._i;  // latest work first
   if(currentFilter.type==='recent'){
-    indexed=indexed.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')||b._i-a._i).slice(0,10);
+    indexed=indexed.slice().sort(byNewest).slice(0,10);
     banner.hidden=false; bannerText.textContent=settings.lang==='ko'?'최근 작업 10건':'Recent 10 jobs';
   }else if(currentFilter.type==='user'){
-    indexed=indexed.filter(e=>(e.name||noneName)===currentFilter.user);
+    indexed=indexed.filter(e=>(e.name||noneName)===currentFilter.user).sort(byNewest);
     banner.hidden=false; bannerText.textContent=`${currentFilter.user} · ${indexed.length}${settings.lang==='ko'?'건':''}`;
-  }else banner.hidden=true;
+  }else{ indexed=indexed.sort(byNewest); banner.hidden=true; }
   if(!indexed.length){ c.innerHTML=`<div class="empty"><div class="t">${t('empty.filterTitle')}</div><div class="d">${t('empty.filterDesc')}</div></div>`; return; }
   const byUser={}; indexed.forEach(e=>{const n=e.name||noneName;(byUser[n]=byUser[n]||[]).push(e);});
   c.innerHTML=`<div class="section-lead"><h2>${t('list.records')}</h2><span class="hint">${indexed.length}${t('unit.records')?' '+t('unit.records'):''}</span></div>`+

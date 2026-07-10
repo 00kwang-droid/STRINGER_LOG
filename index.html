@@ -228,13 +228,13 @@ body{background:
 .card-date{font-size:11px;color:var(--ink-4);flex-shrink:0;margin-left:auto;font-family:var(--mono);white-space:nowrap;}
 .card-sub{font-size:11px;color:var(--ink-4);margin-top:3px;}
 
-/* empty */
-.empty{
+/* empty (home list state only — scoped so it never touches .val.empty pickers) */
+.home-content .empty{
   display:flex;flex-direction:column;align-items:center;justify-content:center;
   padding:72px 30px;text-align:center;gap:12px;
 }
-.empty .t{font-family:var(--serif);font-size:19px;font-weight:800;color:var(--ink);}
-.empty .d{font-size:13.5px;color:var(--ink-3);line-height:1.7;}
+.home-content .empty .t{font-family:var(--serif);font-size:19px;font-weight:800;color:var(--ink);}
+.home-content .empty .d{font-size:13.5px;color:var(--ink-3);line-height:1.7;}
 
 /* ═══════════ SUB HEADER ═══════════ */
 .sub-header{
@@ -671,7 +671,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
     <div class="form-label" data-i18n="add.player">선수</div>
     <div class="card-group">
       <div class="row"><label data-i18n="add.name">이름</label>
-        <input type="text" id="f-name" data-i18n-ph="add.namePh" placeholder="이름 입력"></div>
+        <input type="text" id="f-name" list="dl-name" autocomplete="off" data-i18n-ph="add.namePh" placeholder="이름 입력"></div>
     </div>
 
     <div class="form-label" data-i18n="add.racket">라켓 정보</div>
@@ -681,15 +681,15 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
           <span class="val empty" data-i18n="common.select">선택</span>
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
-      <div class="inline-add" id="rbrand-add" hidden><input type="text" id="f-rbrand-c" data-i18n-ph="add.brandPh" placeholder="브랜드명 직접 입력"></div>
+      <div class="inline-add" id="rbrand-add" hidden><input type="text" id="f-rbrand-c" list="dl-rbrand" autocomplete="off" data-i18n-ph="add.brandPh" placeholder="브랜드명 직접 입력"></div>
       <div class="row"><label data-i18n="add.model1">모델명</label>
         <button type="button" class="picker-trigger" id="tp-rmodel1" onclick="pickRacketModel()">
           <span class="val empty" data-i18n="common.select">선택</span>
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
-      <div class="inline-add" id="rmodel1-add" hidden><input type="text" id="f-rmodel1-c" data-i18n-ph="add.modelPh" placeholder="모델명 직접 입력"></div>
+      <div class="inline-add" id="rmodel1-add" hidden><input type="text" id="f-rmodel1-c" list="dl-rmodel" autocomplete="off" data-i18n-ph="add.modelPh" placeholder="모델명 직접 입력"></div>
       <div class="row"><label data-i18n="add.model2">추가 모델</label>
-        <input type="text" id="f-rmodel2" data-i18n-ph="common.optional" placeholder="선택사항"></div>
+        <input type="text" id="f-rmodel2" list="dl-rmodel2" autocomplete="off" data-i18n-ph="common.optional" placeholder="선택사항"></div>
     </div>
     <div class="card-group">
       <div class="row"><label data-i18n="add.pattern">패턴</label>
@@ -703,7 +703,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
       <div class="row"><label data-i18n="add.weight">무게</label>
-        <div class="suffix-wrap"><input type="number" id="f-weight" placeholder="0" inputmode="decimal"><span class="suffix">g</span></div></div>
+        <div class="suffix-wrap"><input type="number" id="f-weight" list="dl-weight" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">g</span></div></div>
     </div>
 
     <div class="form-label" data-i18n="add.string">스트링 정보</div>
@@ -734,7 +734,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
         </button>
         <input type="hidden" id="f-date"></div>
       <div class="row"><label data-i18n="add.place">작업 장소</label>
-        <input type="text" id="f-place" data-i18n-ph="add.placePh" placeholder="장소"></div>
+        <input type="text" id="f-place" list="dl-place" autocomplete="off" data-i18n-ph="add.placePh" placeholder="장소"></div>
     </div>
 
     <button class="btn-save" onclick="saveEntry()"><span id="save-btn-label" data-i18n="add.save">저장하기</span></button>
@@ -869,6 +869,18 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
 
 <div class="toast" id="toast"></div>
 <input type="file" id="import-file" accept=".json" hidden onchange="handleImportFile(event)">
+
+<!-- autocomplete history (populated from past records) -->
+<datalist id="dl-name"></datalist>
+<datalist id="dl-place"></datalist>
+<datalist id="dl-rbrand"></datalist>
+<datalist id="dl-rmodel"></datalist>
+<datalist id="dl-rmodel2"></datalist>
+<datalist id="dl-weight"></datalist>
+<datalist id="dl-gauge"></datalist>
+<datalist id="dl-tension"></datalist>
+<datalist id="dl-sbrand"></datalist>
+<datalist id="dl-smodel"></datalist>
 
 <!-- generic bottom sheet host -->
 <div class="overlay" id="overlay" onclick="closeSheet()"></div>
