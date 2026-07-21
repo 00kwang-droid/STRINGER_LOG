@@ -609,7 +609,7 @@ document.addEventListener('pointerdown', e=>{
   if(acBox && !acBox.hidden && acInput && e.target!==acInput && !acBox.contains(e.target)) acHide();
 });
 window.addEventListener('scroll', ()=>{ if(acInput) acPosition(acInput); }, {passive:true,capture:true});
-window.addEventListener('resize', ()=>{ if(acInput) acHide(); });
+window.addEventListener('resize', ()=>{ if(acInput) acPosition(acInput); });
 
 /* ══════════════════════════════════════════ form save/reset/edit ══════════════════════════════════════════ */
 function resetForm(){
