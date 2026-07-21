@@ -333,6 +333,21 @@ body{background:
 }
 .inline-add input::placeholder{color:var(--ink-4);}
 
+/* custom autocomplete dropdown (native <datalist> selection is unreliable on many
+   mobile / WebView browsers, so suggestions are rendered & handled manually) */
+.ac-box{
+  position:absolute;z-index:500;background:var(--surface-2);border:1px solid var(--line-2);
+  border-radius:var(--r-sm);box-shadow:0 10px 28px rgba(0,0,0,.28);
+  max-height:216px;overflow-y:auto;-webkit-overflow-scrolling:touch;
+}
+.ac-item{
+  padding:11px 14px;font-size:14px;color:var(--ink);cursor:pointer;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  border-bottom:1px solid var(--line);-webkit-tap-highlight-color:transparent;
+}
+.ac-item:last-child{border-bottom:none;}
+.ac-item:active{background:var(--accent-soft);}
+
 /* measurement inline card */
 .meas-card{
   background:linear-gradient(150deg, rgba(246,196,83,0.07), var(--surface));
@@ -671,7 +686,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
     <div class="form-label" data-i18n="add.player">선수</div>
     <div class="card-group">
       <div class="row"><label data-i18n="add.name">이름</label>
-        <input type="text" id="f-name" list="dl-name" autocomplete="off" data-i18n-ph="add.namePh" placeholder="이름 입력"></div>
+        <input type="text" id="f-name" data-ac="dl-name" autocomplete="off" data-i18n-ph="add.namePh" placeholder="이름 입력"></div>
     </div>
 
     <div class="form-label" data-i18n="add.racket">라켓 정보</div>
@@ -681,15 +696,15 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
           <span class="val empty" data-i18n="common.select">선택</span>
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
-      <div class="inline-add" id="rbrand-add" hidden><input type="text" id="f-rbrand-c" list="dl-rbrand" autocomplete="off" data-i18n-ph="add.brandPh" placeholder="브랜드명 직접 입력"></div>
+      <div class="inline-add" id="rbrand-add" hidden><input type="text" id="f-rbrand-c" data-ac="dl-rbrand" autocomplete="off" data-i18n-ph="add.brandPh" placeholder="브랜드명 직접 입력"></div>
       <div class="row"><label data-i18n="add.model1">모델명</label>
         <button type="button" class="picker-trigger" id="tp-rmodel1" onclick="pickRacketModel()">
           <span class="val empty" data-i18n="common.select">선택</span>
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
-      <div class="inline-add" id="rmodel1-add" hidden><input type="text" id="f-rmodel1-c" list="dl-rmodel" autocomplete="off" data-i18n-ph="add.modelPh" placeholder="모델명 직접 입력"></div>
+      <div class="inline-add" id="rmodel1-add" hidden><input type="text" id="f-rmodel1-c" data-ac="dl-rmodel" autocomplete="off" data-i18n-ph="add.modelPh" placeholder="모델명 직접 입력"></div>
       <div class="row"><label data-i18n="add.model2">추가 모델</label>
-        <input type="text" id="f-rmodel2" list="dl-rmodel2" autocomplete="off" data-i18n-ph="common.optional" placeholder="선택사항"></div>
+        <input type="text" id="f-rmodel2" data-ac="dl-rmodel2" autocomplete="off" data-i18n-ph="common.optional" placeholder="선택사항"></div>
     </div>
     <div class="card-group">
       <div class="row"><label data-i18n="add.pattern">패턴</label>
@@ -703,7 +718,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
           <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
         </button></div>
       <div class="row"><label data-i18n="add.weight">무게</label>
-        <div class="suffix-wrap"><input type="number" id="f-weight" list="dl-weight" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">g</span></div></div>
+        <div class="suffix-wrap"><input type="number" id="f-weight" data-ac="dl-weight" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">g</span></div></div>
     </div>
 
     <div class="form-label" data-i18n="add.string">스트링 정보</div>
@@ -734,7 +749,7 @@ input[type=range]::-moz-range-thumb{width:20px;height:20px;border-radius:50%;bac
         </button>
         <input type="hidden" id="f-date"></div>
       <div class="row"><label data-i18n="add.place">작업 장소</label>
-        <input type="text" id="f-place" list="dl-place" autocomplete="off" data-i18n-ph="add.placePh" placeholder="장소"></div>
+        <input type="text" id="f-place" data-ac="dl-place" autocomplete="off" data-i18n-ph="add.placePh" placeholder="장소"></div>
     </div>
 
     <button class="btn-save" onclick="saveEntry()"><span id="save-btn-label" data-i18n="add.save">저장하기</span></button>

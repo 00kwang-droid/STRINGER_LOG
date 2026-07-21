@@ -467,19 +467,19 @@ function buildSF(p){
         <span class="val empty">${t('common.select')}</span>
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </button></div>
-    <div class="inline-add" id="${p}-bc-w" hidden><input type="text" id="${p}-bc" list="dl-sbrand" autocomplete="off" placeholder="${t('add.brandPh')}"></div>
+    <div class="inline-add" id="${p}-bc-w" hidden><input type="text" id="${p}-bc" data-ac="dl-sbrand" autocomplete="off" placeholder="${t('add.brandPh')}"></div>
     <div class="row"><label>${t('add.model1')}</label>
       <button type="button" class="picker-trigger" id="tp-${p}-m" onclick="pickStrModel('${p}')">
         <span class="val empty">${t('common.select')}</span>
         <span class="chev"><svg viewBox="0 0 24 24" fill="none"><path d="M9 6l6 6-6 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
       </button></div>
-    <div class="inline-add" id="${p}-mc-w" hidden><input type="text" id="${p}-mc" list="dl-smodel" autocomplete="off" placeholder="${t('add.modelPh')}"></div>
+    <div class="inline-add" id="${p}-mc-w" hidden><input type="text" id="${p}-mc" data-ac="dl-smodel" autocomplete="off" placeholder="${t('add.modelPh')}"></div>
   </div>
   <div class="card-group">
     <div class="row"><label>${t('add.gauge')}</label>
-      <div class="suffix-wrap"><input type="text" id="${p}-g" list="dl-gauge" autocomplete="off" placeholder="1.25" inputmode="decimal" oninput="fmtGauge(this)"><span class="suffix">mm</span></div></div>
+      <div class="suffix-wrap"><input type="text" id="${p}-g" data-ac="dl-gauge" autocomplete="off" placeholder="1.25" inputmode="decimal" oninput="fmtGauge(this)"><span class="suffix">mm</span></div></div>
     <div class="row"><label>${t('add.tension')}</label>
-      <div class="suffix-wrap"><input type="number" id="${p}-t" list="dl-tension" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">lbs</span></div></div>
+      <div class="suffix-wrap"><input type="number" id="${p}-t" data-ac="dl-tension" autocomplete="off" placeholder="0" inputmode="decimal"><span class="suffix">lbs</span></div></div>
   </div>`;
 }
 function pickStrBrand(p){
@@ -543,6 +543,73 @@ function buildDatalists(){
   fill('dl-weight',weights); fill('dl-gauge',gauges); fill('dl-tension',tensions);
   fill('dl-sbrand',sbrands); fill('dl-smodel',smodels);
 }
+
+/* ══════════════════════════════════════════ custom autocomplete dropdown ══════════════════════════════════════════ */
+/* Inputs carry data-ac="dl-xxx" pointing at the (hidden) <datalist> built above.
+   Native <datalist> popups don't reliably commit a value on tap in several
+   mobile browsers / Android WebViews, so suggestions are rendered in a plain
+   floating list and selection is handled manually via pointerdown (which fires
+   before the input's blur, so we can commit the value before the list closes). */
+let acBox=null, acInput=null;
+function acEnsureBox(){
+  if(acBox) return acBox;
+  acBox=document.createElement('div');
+  acBox.className='ac-box';
+  acBox.hidden=true;
+  document.body.appendChild(acBox);
+  acBox.addEventListener('pointerdown', e=>{
+    const item=e.target.closest('.ac-item');
+    if(!item || !acInput) return;
+    e.preventDefault();               // keep focus on the input; don't let it blur yet
+    const val=item.dataset.val;
+    const setter=Object.getOwnPropertyDescriptor(window.HTMLInputElement.prototype,'value').set;
+    setter.call(acInput,val);         // native setter so framework-agnostic listeners still see it
+    acInput.dispatchEvent(new Event('input',{bubbles:true}));
+    acInput.dispatchEvent(new Event('change',{bubbles:true}));
+    acHide();
+  });
+  return acBox;
+}
+function acOptionsFor(input){
+  const listId=input.getAttribute('data-ac');
+  const dl=listId&&document.getElementById(listId);
+  return dl?Array.from(dl.options).map(o=>o.value).filter(Boolean):[];
+}
+function acPosition(input){
+  const r=input.getBoundingClientRect();
+  acBox.style.left=Math.round(r.left+window.scrollX)+'px';
+  acBox.style.top=Math.round(r.bottom+window.scrollY+4)+'px';
+  acBox.style.width=Math.round(r.width)+'px';
+}
+function acRender(input){
+  acInput=input;                    // keep tracking this input even with 0 matches, so future keystrokes re-check
+  const all=acOptionsFor(input);
+  const q=input.value.trim().toLowerCase();
+  const items=(q?all.filter(v=>v.toLowerCase().includes(q)&&v.toLowerCase()!==q):all).slice(0,8);
+  const box=acEnsureBox();
+  if(!items.length){ box.hidden=true; return; }
+  box.innerHTML=items.map(v=>`<div class="ac-item" data-val="${escAttr(v)}">${escHtml(v)}</div>`).join('');
+  acPosition(input);
+  box.hidden=false;
+}
+function acHide(){ if(acBox) acBox.hidden=true; acInput=null; }
+document.addEventListener('focusin', e=>{
+  const el=e.target;
+  if(el.tagName==='INPUT' && el.hasAttribute('data-ac')) acRender(el);
+});
+document.addEventListener('input', e=>{
+  const el=e.target;
+  if(el===acInput) acRender(el);
+});
+document.addEventListener('focusout', e=>{
+  const el=e.target;
+  if(el===acInput) setTimeout(()=>{ if(document.activeElement!==el) acHide(); },0);
+});
+document.addEventListener('pointerdown', e=>{
+  if(acBox && !acBox.hidden && acInput && e.target!==acInput && !acBox.contains(e.target)) acHide();
+});
+window.addEventListener('scroll', ()=>{ if(acInput) acPosition(acInput); }, {passive:true,capture:true});
+window.addEventListener('resize', ()=>{ if(acInput) acHide(); });
 
 /* ══════════════════════════════════════════ form save/reset/edit ══════════════════════════════════════════ */
 function resetForm(){
